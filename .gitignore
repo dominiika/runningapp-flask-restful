@@ -1,0 +1,6 @@
+*/__pycache__/
+*/secret_key.py
+*/data.db
+venv/
+
+
