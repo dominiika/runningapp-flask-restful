@@ -2,6 +2,11 @@
 
 #####** **The application is still in development** **
 
+## Built with 
+
+- Python 3.8.0
+- Flask 1.1.2
+- Flask-RESTful 0.3.8
 
 ##Getting started 
 
