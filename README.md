@@ -12,8 +12,44 @@
 
 ### Installing and Prerequisites
 
-To run the app locally:
+##### To run the app locally using Docker:
 
+1. Clone this repository and cd into its directory.
+
+2. Create a Docker image:
+```
+docker build -t runningapp:latest .
+```
+
+3. Create a volume:
+```
+docker volume create runningapp_data
+```
+
+4. Create a container and mount the volume in it:
+```
+docker run --network host --name runningapp -d -v runningapp_data:/runningapp runningapp
+```
+
+5. Start a container:
+```
+docker start [container_id]
+```
+
+6. You can visit the app at port 5000.
+
+7. To stop the server, type:
+```
+docker stop [container_id]
+```
+
+8. To see running containers, type:
+```
+docker ps
+```
+<br/>
+
+##### To run the app locally using virtual environment:
 1. Clone this repository.
 
 2. Create virtual environment and run it:
