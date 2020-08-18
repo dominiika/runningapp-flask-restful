@@ -1,0 +1,11 @@
+venv/
+/htmlcov/*
+.coverage
+**/tests/
+**/__pycache__/
+.git
+README.md
+**/*.db
+
+
+
