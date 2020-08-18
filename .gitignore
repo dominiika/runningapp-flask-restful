@@ -1,10 +1,8 @@
-*/__pycache__
+**/__pycache__
 */secret_key.py
 */data.db
 venv/
 /htmlcov/*
 .coverage
-runningapp/tests/*/__pycache__/
-runningapp/*/__pycache__/
 
 
