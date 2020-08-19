@@ -43,7 +43,7 @@ class Superuser:
         connection.close()
 
     def _get_user_id(self):
-        """Find the id in the suers table to make a relation to user_profiles table possible"""
+        """Find the id in the users table to make a relation to user_profiles table possible"""
         connection = sqlite3.connect(self.db)
         cursor = connection.cursor()
         query = "SELECT * FROM users WHERE username=?"
