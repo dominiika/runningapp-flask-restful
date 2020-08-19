@@ -8,6 +8,7 @@ from runningapp.ma import ma
 from runningapp.blacklist import BLACKLIST
 from runningapp.routes import initialize_routes
 from runningapp.config import Config
+from runningapp.models.user import UserModel
 
 
 def create_app():
@@ -37,7 +38,8 @@ def create_app():
     @jwt.user_claims_loader
     def add_claims_to_jwt(identity):
         """Add claims to JWT token"""
-        if identity == 1:  # admin
+        user = UserModel.find_by_id(identity)
+        if user.is_admin:
             return {"is_admin": True}
         return {"is_admin": False}
 

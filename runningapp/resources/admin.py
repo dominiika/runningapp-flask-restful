@@ -1,20 +1,15 @@
 from flask_restful import Resource
 from flask import request
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from flask_jwt_extended import (
-    create_access_token,
-    get_jwt_identity,
     jwt_required,
-    get_raw_jwt,
+    get_jwt_claims
 )
 from runningapp.models.user import UserModel, UserProfileModel
 from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema
-from runningapp.blacklist import BLACKLIST
 
 
 user_schema = UserSchema()
-
-# CHANGE VALIDATION TO CLAIMS!!!!
 
 
 class AdminManageUser(Resource):
@@ -23,9 +18,9 @@ class AdminManageUser(Resource):
     @classmethod
     @jwt_required
     def get(cls, user_id):
-        current_user_id = get_jwt_identity()
-        current_user = UserModel.find_by_id(current_user_id)
-        if not current_user.is_admin:
+        """Get the user"""
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -37,9 +32,8 @@ class AdminManageUser(Resource):
     @jwt_required
     def put(cls, user_id):
         """Change username, password or promote the user to be the admin or staff"""
-        current_user_id = get_jwt_identity()
-        current_user = UserModel.find_by_id(current_user_id)
-        if not current_user.is_admin:
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -63,9 +57,8 @@ class AdminManageUser(Resource):
     @jwt_required
     def delete(cls, user_id):
         """Delete the user"""
-        current_user_id = get_jwt_identity()
-        current_user = UserModel.find_by_id(current_user_id)
-        if not current_user.is_admin:
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -84,9 +77,8 @@ class AdminManageUserList(Resource):
     @jwt_required
     def get(cls):
         """Get the user list"""
-        current_user_id = get_jwt_identity()
-        current_user = UserModel.find_by_id(current_user_id)
-        if not current_user.is_admin:
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
             return {"message": "You don't have permission to perform this action."}, 403
 
         return {"users": [user_schema.dump(user) for user in UserModel.find_all()]}, 200
@@ -95,9 +87,8 @@ class AdminManageUserList(Resource):
     @jwt_required
     def post(cls):
         """Register a user"""
-        current_user_id = get_jwt_identity()
-        current_user = UserModel.find_by_id(current_user_id)
-        if not current_user.is_admin:
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user_data = user_schema.load(request.get_json())
