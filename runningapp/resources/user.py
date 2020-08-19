@@ -95,6 +95,8 @@ class UserRegister(Resource):
             return {"message": "A user with that username already exists."}, 400
 
         user_data.password = generate_password_hash(user_data.password)
+        user_data.is_admin = False
+        user_data.is_staff = False
 
         try:
             user_data.save_to_db()
