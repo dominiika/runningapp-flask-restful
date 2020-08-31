@@ -326,3 +326,7 @@ class TrainingListTests(unittest.TestCase):
         self.assertEqual(training.distance, data["distance"])
         self.assertEqual(training.avg_tempo, data["avg_tempo"])
         self.assertEqual(training.time_in_seconds, data["time_in_seconds"])
+
+
+if __name__ == "__main__":
+    unittest.main()

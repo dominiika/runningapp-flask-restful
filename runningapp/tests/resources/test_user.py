@@ -389,3 +389,8 @@ class OtherUserTests(unittest.TestCase):
         )
 
         self.assertTrue(is_password_changed)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
