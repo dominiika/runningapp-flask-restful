@@ -1,10 +1,7 @@
 from flask_restful import Resource
 from flask import request
 from werkzeug.security import generate_password_hash
-from flask_jwt_extended import (
-    jwt_required,
-    get_jwt_claims
-)
+from flask_jwt_extended import jwt_required, get_jwt_claims
 from runningapp.models.user import UserModel, UserProfileModel
 from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema
 
@@ -20,7 +17,7 @@ class AdminManageUser(Resource):
     def get(cls, user_id):
         """Get the user"""
         claims = get_jwt_claims()
-        if not claims['is_admin']:
+        if not claims["is_admin"]:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -33,7 +30,7 @@ class AdminManageUser(Resource):
     def put(cls, user_id):
         """Change username, password or promote the user to be the admin or staff"""
         claims = get_jwt_claims()
-        if not claims['is_admin']:
+        if not claims["is_admin"]:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -58,7 +55,7 @@ class AdminManageUser(Resource):
     def delete(cls, user_id):
         """Delete the user"""
         claims = get_jwt_claims()
-        if not claims['is_admin']:
+        if not claims["is_admin"]:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user = UserModel.find_by_id(user_id)
@@ -78,7 +75,7 @@ class AdminManageUserList(Resource):
     def get(cls):
         """Get the user list"""
         claims = get_jwt_claims()
-        if not claims['is_admin']:
+        if not claims["is_admin"]:
             return {"message": "You don't have permission to perform this action."}, 403
 
         return {"users": [user_schema.dump(user) for user in UserModel.find_all()]}, 200
@@ -88,7 +85,7 @@ class AdminManageUserList(Resource):
     def post(cls):
         """Register a user"""
         claims = get_jwt_claims()
-        if not claims['is_admin']:
+        if not claims["is_admin"]:
             return {"message": "You don't have permission to perform this action."}, 403
 
         user_data = user_schema.load(request.get_json())

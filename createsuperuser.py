@@ -25,8 +25,9 @@ class Superuser:
             user_profile.save_to_db()
 
 
-admin_username = input("Choose admin username: ")
-admin_password = input("Choose admin password: ")
+if __name__ == "__main__":
+    admin_username = input("Choose admin username: ")
+    admin_password = input("Choose admin password: ")
 
-superuser = Superuser(admin_username, admin_password)
-superuser.create_admin()
+    superuser = Superuser(admin_username, admin_password)
+    superuser.create_admin()

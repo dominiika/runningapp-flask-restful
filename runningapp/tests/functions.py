@@ -2,6 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from runningapp.models.training import TrainingModel
 from runningapp.models.user import UserModel, UserProfileModel
+from createsuperuser import Superuser
 
 
 def set_up_test_app(obj, create_app):
@@ -54,3 +55,10 @@ def get_access_token(client, username: str = "testuser", password="testpass") ->
         headers={"Content-Type": "application/json"},
     )
     return response.json["access_token"]
+
+
+def sample_admin(username: str = "admin") -> "UserModel":
+    """Create a sample admin"""
+    superuser = Superuser(username, password="testpass")
+    superuser.create_admin()
+    return superuser
