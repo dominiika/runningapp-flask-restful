@@ -201,5 +201,9 @@ class AdminManageUserTests(unittest.TestCase):
         self.assertTrue(check_password_hash(self.user.password, data["password"]))
 
 
+class AdminManageUserListTests(unittest.TestCase):
+    pass
+
+
 if __name__ == "__main__":
     unittest.main()
