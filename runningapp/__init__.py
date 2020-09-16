@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from marshmallow import ValidationError
+from flask_cors import CORS
 from runningapp.db import db
 from runningapp.ma import ma
 from runningapp.blacklist import BLACKLIST
@@ -17,6 +18,13 @@ def create_app():
     basedir = os.path.abspath(os.path.dirname(__file__))
 
     app = Flask(__name__)
+    CORS(app)
+    cors = CORS(app, resources={
+        f"/*": {
+            "origins": "localhost"
+        }
+    })
+
     app.config.from_object(Config)
     app.url_map.strict_slashes = False
     db.init_app(app)
