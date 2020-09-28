@@ -203,18 +203,62 @@ class AdminManageUserTests(unittest.TestCase):
 
 class AdminManageUserListTests(unittest.TestCase):
 
+    def setUp(self):
+        """Set up a test app, test client and test database"""
+        set_up_test_app(obj=self, create_app=create_app)
+        self.client = set_up_client(self)
+        set_up_test_db(db)
+        self.admin = sample_admin()
+        self.access_token = get_access_token(
+            client=self.client, username="admin", password="testpass"
+        )
+
     def test_get_users_status_code_ok(self):
         """Test if the status code is 200 if the logged in user is the admin"""
-        pass
+
+        response = self.client.get(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
 
     def test_get_users_data(self):
         """Test if the correct data is returned if the logged in user is the admin"""
-        pass
+        user = sample_user()
+
+        response = self.client.get(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+        )
+
+        users_data = user_list_schema.dump(UserModel.find_all())
+
+        self.assertEqual(len(response.json['users']), 2)
+        self.assertEqual(users_data, response.json['users'])
 
     def test_get_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        pass
+        user = sample_user()
+        user_token = get_access_token(
+            client=self.client, username=user.username, password="testpass"
+        )
 
+        response = self.client.get(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {user_token}",
+            },
+        )
+
+        self.assertEqual(response.status_code, 403)
 
     def test_post_status_code_created(self):
         """Test if the status code is 201 if the user is registered successfully by the admin"""
