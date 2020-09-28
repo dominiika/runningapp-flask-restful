@@ -202,7 +202,35 @@ class AdminManageUserTests(unittest.TestCase):
 
 
 class AdminManageUserListTests(unittest.TestCase):
-    pass
+
+    def test_get_users_status_code_ok(self):
+        """Test if the status code is 200 if the logged in user is the admin"""
+        pass
+
+    def test_get_users_data(self):
+        """Test if the correct data is returned if the logged in user is the admin"""
+        pass
+
+    def test_get_users_status_code_forbidden(self):
+        """Test if the status code is 403 if the logged in user is not the admin"""
+        pass
+
+
+    def test_post_status_code_created(self):
+        """Test if the status code is 201 if the user is registered successfully by the admin"""
+        pass
+
+    def test_post_data_in_db(self):
+        """Test if the user is saved in the database after signing them up by the admin"""
+        pass
+
+    def test_register_status_code_bad_request(self):
+        """Test if the status code is 400 if the user with the given username already exists"""
+        pass
+
+    def test_post_users_status_code_forbidden(self):
+        """Test if the status code is 403 if the logged in user is not the admin"""
+        pass
 
 
 if __name__ == "__main__":
