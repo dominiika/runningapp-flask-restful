@@ -262,19 +262,68 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_post_status_code_created(self):
         """Test if the status code is 201 if the user is registered successfully by the admin"""
-        pass
+        data = {"username": "user2", "password": "testpass"}
+
+        response = self.client.post(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            data=json.dumps(data),
+        )
+
+        self.assertEqual(response.status_code, 201)
 
     def test_post_data_in_db(self):
         """Test if the user is saved in the database after signing them up by the admin"""
-        pass
+        data = {"username": "user2", "password": "testpass"}
+
+        self.client.post(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            data=json.dumps(data),
+        )
+
+        user = UserModel.find_by_username(data["username"])
+
+        self.assertIsNotNone(user)
 
     def test_register_status_code_bad_request(self):
         """Test if the status code is 400 if the user with the given username already exists"""
-        pass
+        sample_user(username='user1')
+        data = {"username": "user1", "password": "testpass"}
+
+        response = self.client.post(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            data=json.dumps(data),
+        )
+
+        self.assertEqual(response.status_code, 400)
 
     def test_post_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        pass
+        sample_user(username='user')
+        token = get_access_token(client=self.client, username="user", password="testpass")
+        data = {"username": "user2", "password": "testpass"}
+
+        response = self.client.post(
+            path=f"admin/users/",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {token}",
+            },
+            data=json.dumps(data),
+        )
+
+        self.assertEqual(response.status_code, 403)
 
 
 if __name__ == "__main__":

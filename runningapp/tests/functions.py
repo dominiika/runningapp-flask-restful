@@ -57,7 +57,7 @@ def get_access_token(client, username: str = "testuser", password="testpass") ->
     return response.json["access_token"]
 
 
-def sample_admin(username: str = "admin") -> "UserModel":
+def sample_admin(username: str = "admin") -> "Superuser":
     """Create a sample admin"""
     superuser = Superuser(username, password="testpass")
     superuser.create_admin()
