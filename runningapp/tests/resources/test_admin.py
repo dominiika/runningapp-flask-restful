@@ -202,7 +202,6 @@ class AdminManageUserTests(unittest.TestCase):
 
 
 class AdminManageUserListTests(unittest.TestCase):
-
     def setUp(self):
         """Set up a test app, test client and test database"""
         set_up_test_app(obj=self, create_app=create_app)
@@ -240,8 +239,8 @@ class AdminManageUserListTests(unittest.TestCase):
 
         users_data = user_list_schema.dump(UserModel.find_all())
 
-        self.assertEqual(len(response.json['users']), 2)
-        self.assertEqual(users_data, response.json['users'])
+        self.assertEqual(len(response.json["users"]), 2)
+        self.assertEqual(users_data, response.json["users"])
 
     def test_get_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
@@ -294,7 +293,7 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_register_status_code_bad_request(self):
         """Test if the status code is 400 if the user with the given username already exists"""
-        sample_user(username='user1')
+        sample_user(username="user1")
         data = {"username": "user1", "password": "testpass"}
 
         response = self.client.post(
@@ -310,8 +309,10 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_post_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        sample_user(username='user')
-        token = get_access_token(client=self.client, username="user", password="testpass")
+        sample_user(username="user")
+        token = get_access_token(
+            client=self.client, username="user", password="testpass"
+        )
         data = {"username": "user2", "password": "testpass"}
 
         response = self.client.post(

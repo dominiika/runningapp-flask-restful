@@ -19,11 +19,7 @@ def create_app():
 
     app = Flask(__name__)
     CORS(app)
-    cors = CORS(app, resources={
-        f"/*": {
-            "origins": "localhost"
-        }
-    })
+    cors = CORS(app, resources={f"/*": {"origins": "localhost"}})
 
     app.config.from_object(Config)
     app.url_map.strict_slashes = False
