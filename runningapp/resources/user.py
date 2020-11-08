@@ -103,10 +103,20 @@ class UserRegister(Resource):
             user = UserModel.find_by_username(user_data.username)
             user_profile = UserProfileModel(user_id=user.id)
             user_profile.save_to_db()
+            access_token = create_access_token(identity=user.id, fresh=True)
 
         except:
             return {"message": "An error occurred creating the user."}, 500
-        return {"message": "User created successfully."}, 201
+
+        return (
+            {
+                "message": "User created successfully.",
+                "access_token": access_token,
+                "username": user.username,
+                "user": user.id,
+            },
+            201,
+        )
 
 
 class UserLogin(Resource):
@@ -120,8 +130,16 @@ class UserLogin(Resource):
 
         if user and check_password_hash(user.password, user_data.password):
             access_token = create_access_token(identity=user.id, fresh=True)
-            return {"access_token": access_token}, 200
 
+            return (
+                {
+                    "message": "User logged in successfully.",
+                    "access_token": access_token,
+                    "username": user.username,
+                    "user": user.id,
+                },
+                200,
+            )
         return {"message": "Invalid credentials."}, 401
 
 
