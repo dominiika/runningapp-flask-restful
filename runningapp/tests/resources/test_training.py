@@ -4,28 +4,21 @@ from runningapp import create_app
 from runningapp.db import db
 from runningapp.models.training import TrainingModel
 from runningapp.schemas.training import TrainingSchema
-from runningapp.tests.functions import (
-    sample_user,
-    get_access_token,
-    sample_training,
-    set_up_test_app,
-    set_up_client,
-    set_up_test_db,
-)
+from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseTraining
 
 
 training_list_schema = TrainingSchema(many=True)
 
 
-class TrainingTests(unittest.TestCase):
+class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user = sample_user()
-        self.access_token = get_access_token(client=self.client)
-        self.training = sample_training(self.user)
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user = self._create_sample_user()
+        self.access_token = self._get_access_token(self.client)
+        self.training = self._create_sample_training(self.user)
 
     def test_get_training_status_code_ok(self):
         """Test if the status code is 200 if the training is found"""
@@ -95,8 +88,8 @@ class TrainingTests(unittest.TestCase):
 
     def test_delete_training_status_code_forbidden(self):
         """Test if the status code is 403 if the user doesn't have permission to delete the training"""
-        sample_user(username="user2")
-        access_token2 = get_access_token(client=self.client, username="user2")
+        self._create_sample_user(username="user2")
+        access_token2 = self._get_access_token(client=self.client, username="user2")
         response = self.client.delete(
             path=f"trainings/{self.training.id}",
             headers={
@@ -161,8 +154,8 @@ class TrainingTests(unittest.TestCase):
 
     def test_update_training_status_code_forbidden(self):
         """Test if the status code is 403 if the user doesn't have permission to update the training"""
-        sample_user(username="user2")
-        access_token2 = get_access_token(client=self.client, username="user2")
+        self._create_sample_user(username="user2")
+        access_token2 = self._get_access_token(client=self.client, username="user2")
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
@@ -183,7 +176,7 @@ class TrainingTests(unittest.TestCase):
     def test_update_training_status_code_bad_request(self):
         """Test if the status code is 400 if the user enters a name which already exists
          among their trainings"""
-        training2 = sample_training(user=self.user, name="test2")
+        training2 = self._create_sample_training(user=self.user, name="test2")
         data = {
             "name": self.training.name,
             "distance": training2.distance,
@@ -225,16 +218,16 @@ class TrainingTests(unittest.TestCase):
         self.assertEqual(training.time_in_seconds, data["time_in_seconds"])
 
 
-class TrainingListTests(unittest.TestCase):
+class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user = sample_user()
-        self.access_token = get_access_token(client=self.client)
-        self.training1 = sample_training(self.user)
-        self.training2 = sample_training(self.user, name="test2")
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user = self._create_sample_user()
+        self.access_token = self._get_access_token(self.client)
+        self.training1 = self._create_sample_training(self.user)
+        self.training2 = self._create_sample_training(self.user, "test2")
 
     def test_get_trainings_status_code_ok(self):
         """Test if the status code is 200"""

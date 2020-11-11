@@ -1,14 +1,16 @@
 import json
 import unittest
 from runningapp import create_app
-from runningapp.tests.functions import set_up_test_app, set_up_client
+from runningapp.tests.base_classes import BaseApp
 
 
-class CalculatorTests(unittest.TestCase):
-    def setUp(self):
+class CalculatorTests(unittest.TestCase, BaseApp):
+    """Test calculators"""
+
+    def setUp(self) -> None:
         """Create a test app and a test client"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
 
     def test_bmi_calculator_status_code(self):
         """Test if the status code is 201 if the user enters required data"""
