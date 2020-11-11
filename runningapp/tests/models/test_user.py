@@ -2,22 +2,12 @@ import unittest
 from runningapp import create_app
 from runningapp.db import db
 from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser
-# from runningapp.tests.functions import (
-#     set_up_test_app,
-#     set_up_client,
-#     set_up_test_db,
-#     sample_user,
-#     sample_training,
-# )
 from runningapp.models.user import UserModel, UserProfileModel
 
 
 class UserModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        # set_up_test_app(obj=self, create_app=create_app)
-        # self.client = set_up_client(self)
-        # set_up_test_db(db)
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
