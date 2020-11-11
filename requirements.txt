@@ -1,10 +1,11 @@
--aniso8601==8.0.0
+aniso8601==8.0.0
 appdirs==1.4.4
 attrs==19.3.0
 black==19.10b0
 click==7.1.2
 coverage==5.2.1
 Flask==1.1.2
+Flask-Cors==3.0.9
 Flask-JWT-Extended==3.24.1
 flask-marshmallow==0.13.0
 Flask-RESTful==0.3.8

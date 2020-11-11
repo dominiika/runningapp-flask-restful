@@ -1,44 +1,36 @@
 import json
 import unittest
 from werkzeug.security import check_password_hash
+
 from runningapp import create_app
 from runningapp.db import db
-from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.schemas.user import UserSchema, UserProfileSchema
-from runningapp.tests.functions import (
-    sample_user,
-    get_access_token,
-    sample_training,
-    set_up_test_app,
-    set_up_client,
-    set_up_test_db,
-    sample_admin,
-)
-
+from runningapp.models.user import UserModel
+from runningapp.schemas.user import UserSchema
+from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseAdmin
 
 user_list_schema = UserSchema(many=True)
 
 
-class AdminManageUserTests(unittest.TestCase):
-    def setUp(self):
-        """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.admin = sample_admin()
-        self.access_token = get_access_token(
-            client=self.client, username="admin", password="testpass"
-        )
-        self.user = sample_user()
+class AdminManageUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseAdmin):
+    """Test admin interface"""
 
-    def test_get_user_status_code_ok(self):
+    def setUp(self) -> None:
+        """Set up a test app, test client and test database"""
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.admin = self._create_sample_admin()
+        self.admin_access_token = self._get_admin_access_token(self.client)
+        self.user = self._create_sample_user()
+
+    def test_get_user_status_scode_ok(self):
         """Test if the status code is 200 if the user is found
         and if the logged in user is the admin"""
         response = self.client.get(
             path=f"admin/users/{self.user.id}",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -50,7 +42,7 @@ class AdminManageUserTests(unittest.TestCase):
             path=f"admin/users/10",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -58,7 +50,7 @@ class AdminManageUserTests(unittest.TestCase):
 
     def test_get_user_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        user_token = get_access_token(
+        user_token = self._get_access_token(
             client=self.client, username=self.user.username, password="testpass"
         )
         response = self.client.get(
@@ -79,7 +71,7 @@ class AdminManageUserTests(unittest.TestCase):
             path=f"admin/users/{self.user.id}",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -92,7 +84,7 @@ class AdminManageUserTests(unittest.TestCase):
             path=f"admin/users/{self.user.id}",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -104,7 +96,7 @@ class AdminManageUserTests(unittest.TestCase):
             path=f"admin/users/10",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -112,7 +104,7 @@ class AdminManageUserTests(unittest.TestCase):
 
     def test_delete_user_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        user_token = get_access_token(
+        user_token = self._get_access_token(
             client=self.client, username=self.user.username, password="testpass"
         )
         response = self.client.delete(
@@ -131,7 +123,7 @@ class AdminManageUserTests(unittest.TestCase):
             path=f"admin/users/{self.user.id}",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -148,7 +140,7 @@ class AdminManageUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -162,7 +154,7 @@ class AdminManageUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -170,7 +162,7 @@ class AdminManageUserTests(unittest.TestCase):
 
     def test_update_user_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        user_token = get_access_token(
+        user_token = self._get_access_token(
             client=self.client, username=self.user.username, password="testpass"
         )
         data = {"username": "updated_username", "password": "updatedpass"}
@@ -193,7 +185,7 @@ class AdminManageUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -201,16 +193,16 @@ class AdminManageUserTests(unittest.TestCase):
         self.assertTrue(check_password_hash(self.user.password, data["password"]))
 
 
-class AdminManageUserListTests(unittest.TestCase):
+class AdminManageUserListTests(unittest.TestCase, BaseApp, BaseDb, BaseAdmin, BaseUser):
+    """Test admin interface"""
+
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.admin = sample_admin()
-        self.access_token = get_access_token(
-            client=self.client, username="admin", password="testpass"
-        )
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.admin = self._create_sample_admin()
+        self.admin_access_token = self._get_admin_access_token(self.client)
 
     def test_get_users_status_code_ok(self):
         """Test if the status code is 200 if the logged in user is the admin"""
@@ -219,7 +211,7 @@ class AdminManageUserListTests(unittest.TestCase):
             path=f"admin/users/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -227,13 +219,13 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_get_users_data(self):
         """Test if the correct data is returned if the logged in user is the admin"""
-        user = sample_user()
+        self._create_sample_user()
 
         response = self.client.get(
             path=f"admin/users/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
         )
 
@@ -244,8 +236,8 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_get_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        user = sample_user()
-        user_token = get_access_token(
+        user = self._create_sample_user()
+        user_token = self._get_access_token(
             client=self.client, username=user.username, password="testpass"
         )
 
@@ -267,7 +259,7 @@ class AdminManageUserListTests(unittest.TestCase):
             path=f"admin/users/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
             data=json.dumps(data),
         )
@@ -282,7 +274,7 @@ class AdminManageUserListTests(unittest.TestCase):
             path=f"admin/users/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
             data=json.dumps(data),
         )
@@ -293,14 +285,14 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_register_status_code_bad_request(self):
         """Test if the status code is 400 if the user with the given username already exists"""
-        sample_user(username="user1")
+        self._create_sample_user(username="user1")
         data = {"username": "user1", "password": "testpass"}
 
         response = self.client.post(
             path=f"admin/users/",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
+                "Authorization": f"Bearer {self.admin_access_token}",
             },
             data=json.dumps(data),
         )
@@ -309,8 +301,8 @@ class AdminManageUserListTests(unittest.TestCase):
 
     def test_post_users_status_code_forbidden(self):
         """Test if the status code is 403 if the logged in user is not the admin"""
-        sample_user(username="user")
-        token = get_access_token(
+        self._create_sample_user(username="user")
+        token = self._get_access_token(
             client=self.client, username="user", password="testpass"
         )
         data = {"username": "user2", "password": "testpass"}
