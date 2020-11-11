@@ -6,28 +6,21 @@ from runningapp import create_app
 from runningapp.db import db
 from runningapp.models.user import UserModel, UserProfileModel
 from runningapp.schemas.user import UserSchema, UserProfileSchema
-from runningapp.tests.functions import (
-    sample_user,
-    get_access_token,
-    sample_training,
-    set_up_test_app,
-    set_up_client,
-    set_up_test_db,
-)
+from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser
 from runningapp.blacklist import BLACKLIST
 
 
 user_list_schema = UserSchema(many=True)
 
 
-class UserTests(unittest.TestCase):
+class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user = sample_user()
-        self.access_token = get_access_token(client=self.client)
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user = self._create_sample_user()
+        self.access_token = self._get_access_token(self.client)
 
     def test_get_user_status_code_ok(self):
         """Test if the status code is 200 if the user is found"""
@@ -92,8 +85,8 @@ class UserTests(unittest.TestCase):
 
     def test_delete_user_status_code_forbidden(self):
         """Test if the status code is 403 if the user doesn't have permission to delete the user"""
-        sample_user(username="user2")
-        access_token2 = get_access_token(client=self.client, username="user2")
+        self._create_sample_user(username="user2")
+        access_token2 = self._get_access_token(client=self.client, username="user2")
         response = self.client.delete(
             path=f"users/{self.user.id}",
             headers={
@@ -119,15 +112,15 @@ class UserTests(unittest.TestCase):
         self.assertIsNone(training)
 
 
-class UserListTests(unittest.TestCase):
+class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user1 = sample_user()
-        self.user2 = sample_user(username="user2")
-        self.access_token = get_access_token(client=self.client)
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user1 = self._create_sample_user()
+        self.user2 = self._create_sample_user(username="user2")
+        self.access_token = self._get_access_token(self.client)
 
     def test_get_users_status_code_ok(self):
         """Test if the status code is 200"""
@@ -156,17 +149,17 @@ class UserListTests(unittest.TestCase):
         self.assertEqual(response.json["users"], trainings_data)
 
 
-class UserProfileTests(unittest.TestCase):
+class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user1 = sample_user()
-        self.user2 = sample_user(username="user2")
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user1 = self._create_sample_user()
+        self.user2 = self._create_sample_user(username="user2")
         self.user_profile1 = UserProfileModel.find_by_user_id(self.user1.id)
         self.user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
-        self.access_token = get_access_token(client=self.client)
+        self.access_token = self._get_access_token(self.client)
 
     def test_update_user_profile_status_code_ok(self):
         """Test if the status code is 200 if the user profile is found and updated"""
@@ -242,13 +235,13 @@ class UserProfileTests(unittest.TestCase):
         self.assertEqual(self.user_profile1.height, data["height"])
 
 
-class OtherUserTests(unittest.TestCase):
+class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        set_up_test_app(obj=self, create_app=create_app)
-        self.client = set_up_client(self)
-        set_up_test_db(db)
-        self.user = sample_user()
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user = self._create_sample_user()
 
     def test_register_status_code_created(self):
         """Test if the status code is 201 if the user is registered successfully"""
@@ -324,7 +317,7 @@ class OtherUserTests(unittest.TestCase):
             path=f"logout",
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {get_access_token(self.client)}",
+                "Authorization": f"Bearer {self._get_access_token(self.client)}",
             },
         )
 
@@ -332,7 +325,7 @@ class OtherUserTests(unittest.TestCase):
 
     def test_logout_token_in_blacklist(self):
         """Test if the token is added to the blacklist after logging out"""
-        access_token = get_access_token(self.client)
+        access_token = self._get_access_token(self.client)
         self.client.post(
             path=f"logout",
             headers={
@@ -353,7 +346,7 @@ class OtherUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {get_access_token(self.client)}",
+                "Authorization": f"Bearer {self._get_access_token(self.client)}",
             },
         )
 
@@ -367,7 +360,7 @@ class OtherUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {get_access_token(self.client)}",
+                "Authorization": f"Bearer {self._get_access_token(self.client)}",
             },
         )
 
@@ -381,7 +374,7 @@ class OtherUserTests(unittest.TestCase):
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {get_access_token(self.client)}",
+                "Authorization": f"Bearer {self._get_access_token(self.client)}",
             },
         )
         is_password_changed = check_password_hash(
