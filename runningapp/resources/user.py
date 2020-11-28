@@ -7,6 +7,7 @@ from flask_jwt_extended import (
     jwt_required,
     get_raw_jwt,
 )
+import datetime
 from runningapp.models.user import UserModel, UserProfileModel
 from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema
 from runningapp.blacklist import BLACKLIST
