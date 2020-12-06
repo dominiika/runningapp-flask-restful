@@ -57,6 +57,7 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertEqual(response.json["name"], self.training.name)
         self.assertEqual(response.json["user_id"], self.training.user_id)
         self.assertEqual(response.json["distance"], self.training.distance)
+        self.assertEqual(response.json["avg_tempo"], self.training.avg_tempo)
         self.assertEqual(
             response.json["time_in_seconds"], self.training.time_in_seconds
         )
@@ -193,7 +194,7 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         """Test if put method updates the training in the database"""
         data = {
             "name": self.training.name,
-            "distance": 8,
+            "distance": 7,
             "time_in_seconds": 3700,
         }
         self.client.put(
@@ -207,8 +208,11 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
 
         training = TrainingModel.find_by_id(self.training.id)
 
+        expected_avg_tempo = 6.8
+
         self.assertEqual(training.distance, data["distance"])
         self.assertEqual(training.time_in_seconds, data["time_in_seconds"])
+        self.assertEqual(training.avg_tempo, expected_avg_tempo)
 
 
 class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):

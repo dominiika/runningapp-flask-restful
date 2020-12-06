@@ -76,8 +76,8 @@ class Training(Resource):
         training.name = training_data.name
         training.distance = training_data.distance
         user_profile.kilometers_run += training.distance
-        training.avg_tempo = calculate_average_tempo(training.time_in_seconds, training.distance)
         training.time_in_seconds = training_data.time_in_seconds
+        training.avg_tempo = calculate_average_tempo(training.time_in_seconds, training.distance)
         training.calories = calculate_calories_burnt(
             user_profile.weight, training.avg_tempo, training.time_in_seconds
         )
