@@ -251,7 +251,9 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
             TrainingModel.find_all_by_user_id(self.user.id)
         )
 
-        self.assertEqual(len(response.json["trainings"]), 2)
+        expected_trainings_num = 2
+
+        self.assertEqual(len(response.json["trainings"]), expected_trainings_num)
         self.assertEqual(response.json["trainings"], trainings_data)
 
     def test_post_training_status_code_created(self):
