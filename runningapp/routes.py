@@ -10,6 +10,7 @@ from runningapp.resources.user import (
 )
 from runningapp.resources.calculator import BmiCalculator, CaloricNeedsCalculator
 from runningapp.resources.admin import AdminManageUser, AdminManageUserList
+from runningapp.resources.stats import RegisteredUsersResource
 
 
 def initialize_routes(api):
@@ -28,3 +29,4 @@ def initialize_routes(api):
     api.add_resource(CaloricNeedsCalculator, "/daily-calories")
     api.add_resource(AdminManageUserList, "/admin/users")
     api.add_resource(AdminManageUser, "/admin/users/<int:user_id>")
+    api.add_resource(RegisteredUsersResource, "/users-number")
