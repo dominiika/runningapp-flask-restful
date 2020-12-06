@@ -8,7 +8,7 @@ class TrainingSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = TrainingModel
-        dump_only = ("id", "user_id", "calories")
+        dump_only = ("id", "user_id", "calories", "avg_tempo")
         load_instance = True
         include_fk = True
 

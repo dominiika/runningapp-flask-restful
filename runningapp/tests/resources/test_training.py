@@ -57,7 +57,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertEqual(response.json["name"], self.training.name)
         self.assertEqual(response.json["user_id"], self.training.user_id)
         self.assertEqual(response.json["distance"], self.training.distance)
-        self.assertEqual(response.json["avg_tempo"], self.training.avg_tempo)
         self.assertEqual(
             response.json["time_in_seconds"], self.training.time_in_seconds
         )
@@ -119,7 +118,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
-            "avg_tempo": self.training.avg_tempo,
             "time_in_seconds": 3700,
         }
         response = self.client.put(
@@ -138,7 +136,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
-            "avg_tempo": self.training.avg_tempo,
             "time_in_seconds": 3700,
         }
         response = self.client.put(
@@ -159,7 +156,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
-            "avg_tempo": self.training.avg_tempo,
             "time_in_seconds": 3700,
         }
         response = self.client.put(
@@ -180,7 +176,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         data = {
             "name": self.training.name,
             "distance": training2.distance,
-            "avg_tempo": training2.avg_tempo,
             "time_in_seconds": training2.time_in_seconds,
         }
         response = self.client.put(
@@ -199,7 +194,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         data = {
             "name": self.training.name,
             "distance": 8,
-            "avg_tempo": 5,
             "time_in_seconds": 3700,
         }
         self.client.put(
@@ -214,7 +208,6 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         training = TrainingModel.find_by_id(self.training.id)
 
         self.assertEqual(training.distance, data["distance"])
-        self.assertEqual(training.avg_tempo, data["avg_tempo"])
         self.assertEqual(training.time_in_seconds, data["time_in_seconds"])
 
 
@@ -262,7 +255,6 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
         data = {
             "name": "test3",
             "distance": 10,
-            "avg_tempo": 8,
             "time_in_seconds": 3600,
         }
         response = self.client.post(
@@ -282,7 +274,6 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
         data = {
             "name": "test2",
             "distance": 10,
-            "avg_tempo": 8,
             "time_in_seconds": 3600,
         }
         response = self.client.post(
@@ -301,7 +292,6 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
         data = {
             "name": "test3",
             "distance": 10,
-            "avg_tempo": 8,
             "time_in_seconds": 3600,
         }
         self.client.post(
@@ -317,7 +307,6 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
 
         self.assertEqual(training.name, data["name"])
         self.assertEqual(training.distance, data["distance"])
-        self.assertEqual(training.avg_tempo, data["avg_tempo"])
         self.assertEqual(training.time_in_seconds, data["time_in_seconds"])
 
 

@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 from runningapp.models.training import TrainingModel
 from runningapp.schemas.training import TrainingSchema
 from runningapp.models.user import UserProfileModel
-from runningapp.resources.functions import calculate_calories_burnt
+from runningapp.resources.functions import calculate_calories_burnt, calculate_average_tempo
 
 
 training_schema = TrainingSchema()
@@ -76,7 +76,7 @@ class Training(Resource):
         training.name = training_data.name
         training.distance = training_data.distance
         user_profile.kilometers_run += training.distance
-        training.avg_tempo = training_data.avg_tempo
+        training.avg_tempo = calculate_average_tempo(training.time_in_seconds, training.distance)
         training.time_in_seconds = training_data.time_in_seconds
         training.calories = calculate_calories_burnt(
             user_profile.weight, training.avg_tempo, training.time_in_seconds
@@ -127,6 +127,7 @@ class TrainingList(Resource):
 
         training = training_schema.load(training_json)
         training.user_id = current_user_id
+        training.avg_tempo = calculate_average_tempo(training.time_in_seconds, training.distance)
         training.calories = calculate_calories_burnt(
             user_profile.weight, training.avg_tempo, training.time_in_seconds
         )

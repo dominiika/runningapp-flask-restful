@@ -4,6 +4,7 @@ from runningapp.resources.functions import (
     calculate_calories_burnt,
     calculate_bmi,
     calculate_activity_factor,
+    calculate_average_tempo
 )
 
 
@@ -52,6 +53,20 @@ class CalculatorsTests(unittest.TestCase):
         """Test if the activity factor is calculated incorrectly."""
         activity_factor = calculate_activity_factor(5)
         self.assertNotEqual(activity_factor, 2)
+
+    def test_calculate_average_tempo_success(self):
+        """Test if the average tempo during a training is calculated correctly."""
+        time_in_seconds = 1800
+        distance = 7
+        avg_tempo = calculate_average_tempo(time_in_seconds, distance)
+        self.assertEqual(avg_tempo, 14)
+
+    def test_calculate_average_tempo_failure(self):
+        """Test if the average tempo during a training is calculated incorrectly."""
+        time_in_seconds = 1800
+        distance = 7
+        avg_tempo = calculate_average_tempo(time_in_seconds, distance)
+        self.assertNotEqual(avg_tempo, 28)
 
 
 if __name__ == "__main__":
