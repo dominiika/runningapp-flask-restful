@@ -123,3 +123,13 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         found_trainings = TrainingModel.find_all()
 
         self.assertEqual(found_trainings, [])
+
+    def test_get_total_kilometers(self):
+        """Test if correct total kilometers number is returned"""
+        self._create_sample_training(user=self.user, name="test training1", distance=10)
+        self._create_sample_training(user=self.user, name="test training2", distance=7)
+        kilometers_number = TrainingModel.get_total_kilometers()
+
+        expected_number = 17
+
+        self.assertEqual(kilometers_number, expected_number)

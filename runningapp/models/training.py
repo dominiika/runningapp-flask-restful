@@ -57,3 +57,12 @@ class TrainingModel(db.Model):
     def find_all_by_user_id(cls, user_id: int) -> List["TrainingModel"]:
         """Find all the trainings which belong to the logged in user"""
         return cls.query.filter_by(user_id=user_id).all()
+
+    @classmethod
+    def get_total_kilometers(cls) -> float:
+        """Get total kilometers run by all the users"""
+        trainings = cls.query.all()
+        total_number = 0
+        for training in trainings:
+            total_number += training.distance
+        return total_number

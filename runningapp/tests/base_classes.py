@@ -86,11 +86,11 @@ class BaseTraining:
     """Create a base training"""
 
     def _create_sample_training(
-        self, user: "UserModel", name: str = "test"
+        self, user: "UserModel", name: str = "test", distance: int = 10
     ) -> "TrainingModel":
         """Create a sample training"""
         training = TrainingModel(
-            name=name, user_id=user.id, distance=10, avg_tempo=8, time_in_seconds=3600
+            name=name, user_id=user.id, distance=distance, avg_tempo=8, time_in_seconds=3600
         )
         training.save_to_db()
         return training
