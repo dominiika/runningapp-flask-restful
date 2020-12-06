@@ -32,7 +32,9 @@ class CalculatorTests(unittest.TestCase, BaseApp):
             headers={"Content-Type": "application/json"},
         )
 
-        self.assertEqual(response.json["bmi"], 34.6)
+        expected_bmi = 34.6
+
+        self.assertEqual(response.json["bmi"], expected_bmi)
 
     def test_caloric_needs_calculator_status_code(self):
         """Test if the status code is 201 if the user enters required data"""
@@ -66,7 +68,9 @@ class CalculatorTests(unittest.TestCase, BaseApp):
             headers={"Content-Type": "application/json"},
         )
 
-        self.assertEqual(response.json["daily_caloric_needs"], 2512)
+        expected_caloric_needs = 2512
+
+        self.assertEqual(response.json["daily_caloric_needs"], expected_caloric_needs)
 
 
 if __name__ == "__main__":
