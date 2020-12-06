@@ -3,14 +3,14 @@
 
 class BmiCalculatorFunctions:
 
-    def calculate_bmi(self, height, weight):
+    def calculate_bmi(self, height, weight) -> float:
         """Calculate BMI - a measure of body fat based on height and weight"""
         return round(weight / (height / 100) ** 2, 1)
 
 
 class CaloricNeedsCalculatorFunctions:
 
-    def calculate_daily_caloric_needs(self, age, height, weight, gender, trainings_per_week):
+    def calculate_daily_caloric_needs(self, age, height, weight, gender, trainings_per_week) -> int:
         """Calculate BMR (Basal Metabolic Rate) - the amount of calories required for a person per day"""
         bmr = 0
         activity_factor = self._calculate_activity_factor(trainings_per_week)
@@ -21,7 +21,7 @@ class CaloricNeedsCalculatorFunctions:
         daily_caloric_needs = bmr * activity_factor
         return int(daily_caloric_needs)
 
-    def _calculate_activity_factor(self, trainings_per_week):
+    def _calculate_activity_factor(self, trainings_per_week) -> int:
         """Calculate the physical activity factor based on the amount of trainings per week"""
         activity_factor_dict = {0: 1, 1: 1.2, 2: 1.4, 3: 1.6, 4: 1.6, 5: 1.8, 6: 2, 7: 2}
         return activity_factor_dict[trainings_per_week]
@@ -29,7 +29,7 @@ class CaloricNeedsCalculatorFunctions:
 
 class TrainingCalculatorFunctions:
 
-    def calculate_calories_burnt(self, weight, tempo, time_in_seconds):
+    def calculate_calories_burnt(self, weight, tempo, time_in_seconds) -> int:
         """Calculate how many calories a person burnt during a training"""
         met = self._calculate_met_value(tempo)
         time_in_minutes = time_in_seconds / 60
@@ -37,7 +37,7 @@ class TrainingCalculatorFunctions:
         calories_burnt = met * 3.5 * weight / 200 * time_in_minutes
         return int(calories_burnt)
 
-    def _calculate_met_value(self, tempo):
+    def _calculate_met_value(self, tempo) -> int:
         """Calculate the metabolic equivalent of a task to measure the body's expenditure of energy"""
         met = 0
         if tempo > 22:
@@ -62,6 +62,6 @@ class TrainingCalculatorFunctions:
             met = 6
         return met
 
-    def calculate_average_tempo(self, time_in_seconds, distance):
+    def calculate_average_tempo(self, time_in_seconds, distance) -> float:
         """Calculate the average tempo (km/h) during a training"""
         return round(distance/(time_in_seconds/3600), 1)
