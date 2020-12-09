@@ -105,7 +105,9 @@ class UserRegister(Resource):
             user_profile = UserProfileModel(user_id=user.id)
             user_profile.save_to_db()
             expires = datetime.timedelta(days=1)
-            access_token = create_access_token(identity=user.id, fresh=True, expires_delta=expires)
+            access_token = create_access_token(
+                identity=user.id, fresh=True, expires_delta=expires
+            )
 
         except:
             return {"message": "An error occurred creating the user."}, 500
@@ -132,7 +134,9 @@ class UserLogin(Resource):
 
         if user and check_password_hash(user.password, user_data.password):
             expires = datetime.timedelta(days=1)
-            access_token = create_access_token(identity=user.id, fresh=True, expires_delta=expires)
+            access_token = create_access_token(
+                identity=user.id, fresh=True, expires_delta=expires
+            )
 
             return (
                 {

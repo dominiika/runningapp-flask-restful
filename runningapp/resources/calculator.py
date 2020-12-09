@@ -1,7 +1,10 @@
 from flask_restful import Resource
 from flask import request
 from runningapp.schemas.calculator import BmiCalculatorSchema, CaloricNeedsSchema
-from runningapp.resources.functions import BmiCalculatorFunctions, CaloricNeedsCalculatorFunctions
+from runningapp.resources.functions import (
+    BmiCalculatorFunctions,
+    CaloricNeedsCalculatorFunctions,
+)
 
 
 bmi_schema = BmiCalculatorSchema()
@@ -17,7 +20,9 @@ class BmiCalculator(Resource):
     def post(cls):
         """Post method"""
         bmi_json = bmi_schema.load(request.get_json())
-        bmi = round(bmi_functions.calculate_bmi(bmi_json["height"], bmi_json["weight"]), 1)
+        bmi = round(
+            bmi_functions.calculate_bmi(bmi_json["height"], bmi_json["weight"]), 1
+        )
         return {"bmi": bmi}, 201
 
 

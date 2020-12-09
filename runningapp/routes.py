@@ -10,7 +10,11 @@ from runningapp.resources.user import (
 )
 from runningapp.resources.calculator import BmiCalculator, CaloricNeedsCalculator
 from runningapp.resources.admin import AdminManageUser, AdminManageUserList
-from runningapp.resources.stats import RegisteredUsersResource, KilometersRunResource, CaloriesBurntResource
+from runningapp.resources.stats import (
+    RegisteredUsersResource,
+    KilometersRunResource,
+    CaloriesBurntResource,
+)
 
 
 def initialize_routes(api):

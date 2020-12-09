@@ -111,7 +111,7 @@ class TrainingModel(db.Model):
 
     def calculate_average_tempo(self) -> None:
         """Calculate the average tempo (km/h) during a training"""
-        self.avg_tempo = round(self.distance/(self.time_in_seconds/3600), 1)
+        self.avg_tempo = round(self.distance / (self.time_in_seconds / 3600), 1)
 
     @classmethod
     def calculate_total_calories(cls):

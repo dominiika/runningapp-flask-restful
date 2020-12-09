@@ -86,11 +86,18 @@ class BaseTraining:
     """Create a base training"""
 
     def _create_sample_training(
-        self, user: "UserModel", name: str = "test", distance: int = 10, time_in_seconds=3600
+        self,
+        user: "UserModel",
+        name: str = "test",
+        distance: int = 10,
+        time_in_seconds=3600,
     ) -> "TrainingModel":
         """Create a sample training"""
         training = TrainingModel(
-            name=name, user_id=user.id, distance=distance, time_in_seconds=time_in_seconds
+            name=name,
+            user_id=user.id,
+            distance=distance,
+            time_in_seconds=time_in_seconds,
         )
         training.avg_tempo = training.calculate_average_tempo()
         training.save_to_db()

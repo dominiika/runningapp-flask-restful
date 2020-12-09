@@ -13,7 +13,6 @@ bmi_functions = BmiCalculatorFunctions()
 
 # TESTY Z KALORIAMI I MET PRZNIESC DO TESTOW MODELU TRENINGU
 class FunctionsTests(unittest.TestCase):
-
     def test_calculate_bmi_success(self):
         """Test if BMI is calculated correctly."""
         height = 165
@@ -33,14 +32,18 @@ class FunctionsTests(unittest.TestCase):
     def test_calculate_activity_factor_success(self):
         """Test if the activity factor is calculated correctly."""
         trainings_per_week = 5
-        activity_factor = caloric_needs_functions._calculate_activity_factor(trainings_per_week)
+        activity_factor = caloric_needs_functions._calculate_activity_factor(
+            trainings_per_week
+        )
         expected_activity_factor = 1.8
         self.assertEqual(activity_factor, expected_activity_factor)
 
     def test_calculate_activity_factor_failure(self):
         """Test if the activity factor is calculated incorrectly."""
         trainings_per_week = 5
-        activity_factor = caloric_needs_functions._calculate_activity_factor(trainings_per_week)
+        activity_factor = caloric_needs_functions._calculate_activity_factor(
+            trainings_per_week
+        )
         wrong_activity_factor = 2
         self.assertNotEqual(activity_factor, wrong_activity_factor)
 

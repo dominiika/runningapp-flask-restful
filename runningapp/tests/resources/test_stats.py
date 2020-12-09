@@ -73,12 +73,8 @@ class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
     def test_calories_burnt_data(self):
         """Test if the data is returned correctly"""
 
-        self._create_sample_training(
-            user=self.user1, distance=12, time_in_seconds=3700
-        )
-        self._create_sample_training(
-            user=self.user2, distance=10, time_in_seconds=3800
-        )
+        self._create_sample_training(user=self.user1, distance=12, time_in_seconds=3700)
+        self._create_sample_training(user=self.user2, distance=10, time_in_seconds=3800)
 
         response = self.client.get(
             path="/total-calories-number", headers={"Content-Type": "application/json"},
