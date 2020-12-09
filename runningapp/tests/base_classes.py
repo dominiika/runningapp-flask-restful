@@ -6,6 +6,10 @@ from createsuperuser import Superuser
 from runningapp import UserModel
 from runningapp.models.training import TrainingModel
 from runningapp.models.user import UserProfileModel
+from runningapp.resources.functions import TrainingCalculatorFunctions
+
+
+training_functions = TrainingCalculatorFunctions()
 
 
 class BaseApp:
@@ -86,11 +90,12 @@ class BaseTraining:
     """Create a base training"""
 
     def _create_sample_training(
-        self, user: "UserModel", name: str = "test", distance: int = 10
+        self, user: "UserModel", name: str = "test", distance: int = 10, time_in_seconds=3600
     ) -> "TrainingModel":
         """Create a sample training"""
+        avg_tempo = training_functions.calculate_average_tempo(time_in_seconds, distance)
         training = TrainingModel(
-            name=name, user_id=user.id, distance=distance, avg_tempo=8, time_in_seconds=3600
+            name=name, user_id=user.id, distance=distance, time_in_seconds=time_in_seconds, avg_tempo=avg_tempo
         )
         training.save_to_db()
         return training
