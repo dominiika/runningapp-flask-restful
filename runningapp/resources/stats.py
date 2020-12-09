@@ -1,10 +1,6 @@
 from flask_restful import Resource
 from runningapp.models.training import TrainingModel
 from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.resources.functions import TrainingCalculatorFunctions
-
-
-training_functions = TrainingCalculatorFunctions()
 
 
 class RegisteredUsersResource(Resource):
@@ -25,16 +21,5 @@ class KilometersRunResource(Resource):
 class CaloriesBurntResource(Resource):
     @classmethod
     def get(cls):
-        trainings = TrainingModel.find_all()
-        calories_number = 0
-        for training in trainings:
-            user_profile = UserProfileModel.find_by_user_id(training.user.id)
-            weight = user_profile.weight
-            tempo = training_functions.calculate_average_tempo(
-                training.time_in_seconds, training.distance
-            )
-            calories = training_functions.calculate_calories_burnt(
-                weight, tempo, training.time_in_seconds
-            )
-            calories_number += calories
+        calories_number = TrainingModel.calculate_total_calories()
         return {"calories_number": calories_number}, 200

@@ -2,11 +2,8 @@ import unittest
 
 from runningapp import create_app
 from runningapp.db import db
-from runningapp.resources.functions import TrainingCalculatorFunctions
-from runningapp.models.user import UserProfileModel
+from runningapp.models.training import TrainingModel
 from runningapp.tests.base_classes import BaseApp, BaseDb, BaseTraining, BaseUser
-
-calories_functions = TrainingCalculatorFunctions()
 
 
 class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
@@ -76,13 +73,10 @@ class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
     def test_calories_burnt_data(self):
         """Test if the data is returned correctly"""
 
-        user_profile1 = UserProfileModel.find_by_user_id(self.user1.id)
-        user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
-
-        training1 = self._create_sample_training(
+        self._create_sample_training(
             user=self.user1, distance=12, time_in_seconds=3700
         )
-        training2 = self._create_sample_training(
+        self._create_sample_training(
             user=self.user2, distance=10, time_in_seconds=3800
         )
 
@@ -90,11 +84,7 @@ class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
             path="/total-calories-number", headers={"Content-Type": "application/json"},
         )
 
-        expected_calories = calories_functions.calculate_calories_burnt(
-            user_profile1.weight, training1.avg_tempo, training1.time_in_seconds
-        ) + calories_functions.calculate_calories_burnt(
-            user_profile2.weight, training2.avg_tempo, training2.time_in_seconds
-        )
+        expected_calories = TrainingModel.calculate_total_calories()
 
         self.assertEqual(expected_calories, response.json["calories_number"])
 

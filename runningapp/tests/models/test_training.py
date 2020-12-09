@@ -19,7 +19,6 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
             name="test training",
             user_id=self.user.id,
             distance=10,
-            avg_tempo=8,
             time_in_seconds=3600,
         )
         training.save_to_db()
@@ -133,3 +132,72 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         expected_number = 17
 
         self.assertEqual(kilometers_number, expected_number)
+
+    def test_calculate_total_calories(self):
+        """Test if correct total calories number is returned"""
+        training1 = self._create_sample_training(user=self.user, name="test training1", distance=10)
+        training2 = self._create_sample_training(user=self.user, name="test training2", distance=7)
+        training1.calculate_calories_burnt()
+        training2.calculate_calories_burnt()
+
+        expected_number = training1.calories + training2.calories
+        total_calories = TrainingModel.calculate_total_calories()
+
+        self.assertEqual(total_calories, expected_number)
+
+    def test_calculate_met_value_success(self):
+        """Test if the met value is calculated correctly"""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=15, time_in_seconds=3600)
+        training.calculate_average_tempo()
+
+        expected_met = 13
+        met = training._calculate_met_value()
+
+        self.assertEqual(met, expected_met)
+
+    def test_calculate_met_value_failure(self):
+        """Test if the met value is calculated incorrectly"""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=15, time_in_seconds=3600)
+        training.calculate_average_tempo()
+
+        met = training._calculate_met_value()
+        wrong_met = 12
+        self.assertNotEqual(met, wrong_met)
+
+    def test_calculate_calories_burnt_success(self):
+        """Test if calories burnt during 1 training are calculated correctly"""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=15, time_in_seconds=3600)
+        training.calculate_average_tempo()
+        training.calculate_calories_burnt()
+
+        expected_calories_burnt = 955
+
+        self.assertEqual(training.calories, expected_calories_burnt)
+
+    def test_calculate_calories_burnt_failure(self):
+        """Test if calories burnt during 1 training are calculated incorrectly"""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=15, time_in_seconds=3600)
+        training.calculate_average_tempo()
+        training.calculate_calories_burnt()
+
+        wrong_calories_burnt = 400
+
+        self.assertNotEqual(training.calories, wrong_calories_burnt)
+
+    def test_calculate_average_tempo_success(self):
+        """Test if the average tempo during a training is calculated correctly."""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=7, time_in_seconds=1800)
+
+        training.calculate_average_tempo()
+        expected_tempo = 14
+
+        self.assertEqual(training.avg_tempo, expected_tempo)
+
+    def test_calculate_average_tempo_failure(self):
+        """Test if the average tempo during a training is calculated incorrectly."""
+        training = self._create_sample_training(user=self.user, name="test training1", distance=7, time_in_seconds=1800)
+
+        training.calculate_average_tempo()
+        wrong_tempo = 28
+
+        self.assertNotEqual(training.avg_tempo, wrong_tempo)

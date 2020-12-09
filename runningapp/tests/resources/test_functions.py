@@ -2,49 +2,17 @@ import unittest
 from runningapp.resources.functions import (
     BmiCalculatorFunctions,
     CaloricNeedsCalculatorFunctions,
-    TrainingCalculatorFunctions
 )
 
 
 # python3.8 -m unittest runningapp/tests/resources/test_functions.py
 
-training_functions = TrainingCalculatorFunctions()
 caloric_needs_functions = CaloricNeedsCalculatorFunctions()
 bmi_functions = BmiCalculatorFunctions()
 
 
+# TESTY Z KALORIAMI I MET PRZNIESC DO TESTOW MODELU TRENINGU
 class FunctionsTests(unittest.TestCase):
-    def test_calculate_met_value_success(self):
-        """Test if the met value is calculated correctly"""
-        tempo = 15
-        met = training_functions._calculate_met_value(tempo)
-        expected_met = 13
-        self.assertEqual(met, expected_met)
-
-    def test_calculate_met_value_failure(self):
-        """Test if the met value is calculated incorrectly"""
-        tempo = 15
-        met = training_functions._calculate_met_value(tempo)
-        wrong_met = 12
-        self.assertNotEqual(met, wrong_met)
-
-    def test_calculate_calories_burnt_success(self):
-        """Test if calories burnt during 1 training are calculated correctly"""
-        weight = 70
-        tempo = 15
-        time_in_seconds = 1800
-        calories_burnt = training_functions.calculate_calories_burnt(weight, tempo, time_in_seconds)
-        expected_calories_burnt = 477
-        self.assertEqual(calories_burnt, expected_calories_burnt)
-
-    def test_calculate_calories_burnt_failure(self):
-        """Test if calories burnt during 1 training are calculated incorrectly"""
-        weight = 70
-        tempo = 15
-        time_in_seconds = 1800
-        calories_burnt = training_functions.calculate_calories_burnt(weight, tempo, time_in_seconds)
-        wrong_calories_burnt = 400
-        self.assertNotEqual(calories_burnt, wrong_calories_burnt)
 
     def test_calculate_bmi_success(self):
         """Test if BMI is calculated correctly."""
@@ -75,20 +43,6 @@ class FunctionsTests(unittest.TestCase):
         activity_factor = caloric_needs_functions._calculate_activity_factor(trainings_per_week)
         wrong_activity_factor = 2
         self.assertNotEqual(activity_factor, wrong_activity_factor)
-
-    def test_calculate_average_tempo_success(self):
-        """Test if the average tempo during a training is calculated correctly."""
-        time_in_seconds = 1800
-        distance = 7
-        avg_tempo = training_functions.calculate_average_tempo(time_in_seconds, distance)
-        self.assertEqual(avg_tempo, 14)
-
-    def test_calculate_average_tempo_failure(self):
-        """Test if the average tempo during a training is calculated incorrectly."""
-        time_in_seconds = 1800
-        distance = 7
-        avg_tempo = training_functions.calculate_average_tempo(time_in_seconds, distance)
-        self.assertNotEqual(avg_tempo, 28)
 
 
 if __name__ == "__main__":
