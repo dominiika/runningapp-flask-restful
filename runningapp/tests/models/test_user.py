@@ -145,10 +145,7 @@ class UserProfileModelCalculatorsTests(unittest.TestCase, BaseApp, BaseDb, BaseU
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
         self.user = self._create_sample_user(
-            age=25,
-            gender='Female',
-            height=165,
-            weight=58
+            age=25, gender="Female", height=165, weight=58
         )
         self.user_profile = UserProfileModel.find_by_user_id(self.user.id)
 

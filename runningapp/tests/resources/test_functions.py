@@ -51,10 +51,12 @@ class FunctionsTests(unittest.TestCase):
         trainings_per_week = 5
         weight = 58
         height = 165
-        gender = 'Female'
+        gender = "Female"
         age = 25
 
-        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(age, height, weight, gender, trainings_per_week)
+        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(
+            age, height, weight, gender, trainings_per_week
+        )
         expected_daily_cal = 2504
 
         self.assertEqual(daily_cal, expected_daily_cal)
@@ -64,10 +66,12 @@ class FunctionsTests(unittest.TestCase):
         trainings_per_week = 5
         weight = 58
         height = 165
-        gender = 'Female'
+        gender = "Female"
         age = 25
 
-        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(age, height, weight, gender, trainings_per_week)
+        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(
+            age, height, weight, gender, trainings_per_week
+        )
         wrong_daily_cal = 2200
 
         self.assertNotEqual(daily_cal, wrong_daily_cal)

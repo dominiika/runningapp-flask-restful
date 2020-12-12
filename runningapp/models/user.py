@@ -101,9 +101,7 @@ class UserProfileModel(db.Model):
         """Calculate BMI - a measure of body fat based on height and weight"""
         self.bmi = round(self.weight / (self.height / 100) ** 2, 1)
 
-    def calculate_daily_caloric_needs(
-        self, trainings_per_week
-    ) -> None:
+    def calculate_daily_caloric_needs(self, trainings_per_week) -> None:
         """Calculate BMR (Basal Metabolic Rate) - the amount of calories required for a person per day"""
         bmr = 0
         activity_factor = self._calculate_activity_factor(trainings_per_week)
