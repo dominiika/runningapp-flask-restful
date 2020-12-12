@@ -79,7 +79,7 @@ class TrainingModel(db.Model):
         calories_burnt = met * 3.5 * weight / 200 * time_in_minutes
         self.calories = int(calories_burnt)
 
-    def _get_users_weight(self):
+    def _get_users_weight(self) -> int:
         """Access user's weight by user profile"""
         user_profile = UserProfileModel.find_by_user_id(self.user_id)
         return user_profile.weight
@@ -114,7 +114,7 @@ class TrainingModel(db.Model):
         self.avg_tempo = round(self.distance / (self.time_in_seconds / 3600), 1)
 
     @classmethod
-    def calculate_total_calories(cls):
+    def calculate_total_calories(cls) -> int:
         """Calculate total calories burnt by all the users during all the trainings"""
         trainings = cls.query.all()
         calories_number = 0
