@@ -11,7 +11,8 @@ from runningapp.models.user import UserProfileModel
 class BaseApp:
     """Create base app"""
 
-    def _set_up_test_app(self, create_app):
+    @classmethod
+    def _set_up_test_app(cls, create_app):
         """Set up a test app"""
         app = create_app()
         app.app_context().push()
@@ -19,7 +20,8 @@ class BaseApp:
         ctx.push()
         return app
 
-    def _set_up_client(self, app):
+    @classmethod
+    def _set_up_client(cls, app):
         """Set up a client for tests"""
         client = app.test_client()
         client.testing = True
@@ -29,7 +31,8 @@ class BaseApp:
 class BaseDb:
     """Create base database"""
 
-    def _set_up_test_db(self, db) -> None:
+    @classmethod
+    def _set_up_test_db(cls, db) -> None:
         """Set up a test database"""
         db.session.close()
         db.drop_all()
@@ -39,7 +42,8 @@ class BaseDb:
 class BaseUser:
     """Create a base user"""
 
-    def _create_sample_user(self, username: str = "testuser", height=185, weight=70, gender='Male', age=25) -> "UserModel":
+    @classmethod
+    def _create_sample_user(cls, username: str = "testuser", height=185, weight=70, gender='Male', age=25) -> "UserModel":
         """Create a sample user"""
         user = UserModel(username=username, password=generate_password_hash("testpass"))
         user.save_to_db()
@@ -47,8 +51,9 @@ class BaseUser:
         user_profile.save_to_db()
         return user
 
+    @classmethod
     def _get_access_token(
-        self, client, username: str = "testuser", password="testpass"
+        cls, client, username: str = "testuser", password="testpass"
     ) -> str:
         """Get the access token for the user with the given credentials"""
         data = {"username": username, "password": password}
@@ -63,8 +68,9 @@ class BaseUser:
 class BaseAdmin:
     """Create a base admin"""
 
+    @classmethod
     def _get_admin_access_token(
-        self, client, username: str = "admin", password="testpass"
+        cls, client, username: str = "admin", password="testpass"
     ) -> str:
         """Get the access token for the user with the given credentials"""
         data = {"username": username, "password": password}
@@ -75,7 +81,8 @@ class BaseAdmin:
         )
         return response.json["access_token"]
 
-    def _create_sample_admin(self, username: str = "admin") -> "Superuser":
+    @classmethod
+    def _create_sample_admin(cls, username: str = "admin") -> "Superuser":
         """Create a sample admin"""
         superuser = Superuser(username, password="testpass")
         superuser.create_admin()
@@ -85,8 +92,9 @@ class BaseAdmin:
 class BaseTraining:
     """Create a base training"""
 
+    @classmethod
     def _create_sample_training(
-        self,
+        cls,
         user: "UserModel",
         name: str = "test",
         distance: int = 10,
@@ -99,6 +107,6 @@ class BaseTraining:
             distance=distance,
             time_in_seconds=time_in_seconds,
         )
-        training.avg_tempo = training.calculate_average_tempo()
+        training.calculate_average_tempo()
         training.save_to_db()
         return training

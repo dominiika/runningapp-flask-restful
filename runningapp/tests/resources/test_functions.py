@@ -11,7 +11,6 @@ caloric_needs_functions = CaloricNeedsCalculatorFunctions()
 bmi_functions = BmiCalculatorFunctions()
 
 
-# TESTY Z KALORIAMI I MET PRZNIESC DO TESTOW MODELU TRENINGU
 class FunctionsTests(unittest.TestCase):
     def test_calculate_bmi_success(self):
         """Test if BMI is calculated correctly."""
