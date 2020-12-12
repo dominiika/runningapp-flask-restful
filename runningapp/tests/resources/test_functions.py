@@ -47,6 +47,32 @@ class FunctionsTests(unittest.TestCase):
         wrong_activity_factor = 2
         self.assertNotEqual(activity_factor, wrong_activity_factor)
 
+    def test_calculate_daily_caloric_needs_success(self):
+        """Test if the daily caloric needs is calculated correctly."""
+        trainings_per_week = 5
+        weight = 58
+        height = 165
+        gender = 'Female'
+        age = 25
+
+        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(age, height, weight, gender, trainings_per_week)
+        expected_daily_cal = 2504
+
+        self.assertEqual(daily_cal, expected_daily_cal)
+
+    def test_calculate_daily_caloric_needs_failure(self):
+        """Test if the daily caloric needs is calculated incorrectly."""
+        trainings_per_week = 5
+        weight = 58
+        height = 165
+        gender = 'Female'
+        age = 25
+
+        daily_cal = caloric_needs_functions.calculate_daily_caloric_needs(age, height, weight, gender, trainings_per_week)
+        wrong_daily_cal = 2200
+
+        self.assertNotEqual(daily_cal, wrong_daily_cal)
+
 
 if __name__ == "__main__":
     unittest.main()

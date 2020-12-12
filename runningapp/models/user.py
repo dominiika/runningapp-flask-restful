@@ -96,3 +96,35 @@ class UserProfileModel(db.Model):
     def find_all(cls) -> List["UserProfileModel"]:
         """Find all user profiles"""
         return cls.query.all()
+
+    def calculate_bmi(self) -> None:
+        """Calculate BMI - a measure of body fat based on height and weight"""
+        self.bmi = round(self.weight / (self.height / 100) ** 2, 1)
+
+    def calculate_daily_caloric_needs(
+        self, trainings_per_week
+    ) -> None:
+        """Calculate BMR (Basal Metabolic Rate) - the amount of calories required for a person per day"""
+        bmr = 0
+        activity_factor = self._calculate_activity_factor(trainings_per_week)
+        if self.gender == "Female":
+            bmr = 655 + 9.6 * self.weight + 1.8 * self.height - 4.7 * self.age
+        elif self.gender == "Male":
+            bmr = 66 + 13.8 * self.weight + 5 * self.height - 6.8 * self.age
+        daily_caloric_needs = bmr * activity_factor
+        self.daily_cal = int(daily_caloric_needs)
+
+    @classmethod
+    def _calculate_activity_factor(cls, trainings_per_week) -> int:
+        """Calculate the physical activity factor based on the amount of trainings per week"""
+        activity_factor_dict = {
+            0: 1,
+            1: 1.2,
+            2: 1.4,
+            3: 1.6,
+            4: 1.6,
+            5: 1.8,
+            6: 2,
+            7: 2,
+        }
+        return activity_factor_dict[trainings_per_week]

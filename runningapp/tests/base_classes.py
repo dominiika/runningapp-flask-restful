@@ -39,11 +39,11 @@ class BaseDb:
 class BaseUser:
     """Create a base user"""
 
-    def _create_sample_user(self, username: str = "testuser") -> "UserModel":
+    def _create_sample_user(self, username: str = "testuser", height=185, weight=70, gender='Male', age=25) -> "UserModel":
         """Create a sample user"""
         user = UserModel(username=username, password=generate_password_hash("testpass"))
         user.save_to_db()
-        user_profile = UserProfileModel(user_id=user.id)
+        user_profile = UserProfileModel(user_id=user.id, height=height, weight=weight, gender=gender, age=age)
         user_profile.save_to_db()
         return user
 

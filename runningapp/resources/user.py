@@ -75,6 +75,7 @@ class UserProfile(Resource):
         user_profile.age = user_profile_data.age
         user_profile.height = user_profile_data.height
         user_profile.weight = user_profile_data.weight
+        user_profile.calculate_bmi()
 
         try:
             user_profile.save_to_db()

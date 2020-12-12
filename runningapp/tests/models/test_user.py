@@ -73,9 +73,6 @@ class UserModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 class UserProfileModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
-        # set_up_test_app(obj=self, create_app=create_app)
-        # self.client = set_up_client(self)
-        # set_up_test_db(db)
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
@@ -139,3 +136,72 @@ class UserProfileModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         found_userprofiles = UserProfileModel.find_all()
 
         self.assertEqual(found_userprofiles, [])
+
+
+class UserProfileModelCalculatorsTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
+    def setUp(self):
+        """Set up a test app, test client and test database"""
+        self.app = self._set_up_test_app(create_app)
+        self.client = self._set_up_client(self.app)
+        self._set_up_test_db(db)
+        self.user = self._create_sample_user(
+            age=25,
+            gender='Female',
+            height=165,
+            weight=58
+        )
+        self.user_profile = UserProfileModel.find_by_user_id(self.user.id)
+
+    def test_calculate_bmi_success(self):
+        """Test if BMI is calculated correctly."""
+        self.user_profile.calculate_bmi()
+        expected_bmi = 21.3
+
+        self.assertEqual(self.user_profile.bmi, expected_bmi)
+
+    def test_calculate_bmi_failure(self):
+        """Test if BMI is calculated incorrectly."""
+        self.user_profile.calculate_bmi()
+        wrong_bmi = 21
+
+        self.assertNotEqual(self.user_profile.bmi, wrong_bmi)
+
+    def test_calculate_activity_factor_success(self):
+        """Test if the activity factor is calculated correctly."""
+        trainings_per_week = 5
+
+        activity_factor = self.user_profile._calculate_activity_factor(
+            trainings_per_week
+        )
+        expected_activity_factor = 1.8
+
+        self.assertEqual(activity_factor, expected_activity_factor)
+
+    def test_calculate_activity_factor_failure(self):
+        """Test if the activity factor is calculated incorrectly."""
+        trainings_per_week = 5
+
+        activity_factor = self.user_profile._calculate_activity_factor(
+            trainings_per_week
+        )
+        wrong_activity_factor = 2
+
+        self.assertNotEqual(activity_factor, wrong_activity_factor)
+
+    def test_calculate_daily_caloric_needs_success(self):
+        """Test if the daily caloric needs is calculated correctly."""
+        trainings_per_week = 5
+
+        self.user_profile.calculate_daily_caloric_needs(trainings_per_week)
+        expected_daily_cal = 2504
+
+        self.assertEqual(self.user_profile.daily_cal, expected_daily_cal)
+
+    def test_calculate_daily_caloric_needs_failure(self):
+        """Test if the daily caloric needs is calculated incorrectly."""
+        trainings_per_week = 5
+
+        self.user_profile.calculate_daily_caloric_needs(trainings_per_week)
+        wrong_daily_cal = 2000
+
+        self.assertNotEqual(self.user_profile.daily_cal, wrong_daily_cal)
