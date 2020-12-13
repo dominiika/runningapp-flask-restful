@@ -57,7 +57,7 @@ class UserProfileModel(db.Model):
     height = db.Column(db.Float(precision=2), default=185)
     weight = db.Column(db.Float(precision=2), default=70)
 
-    bmi = db.Column(db.Float(precision=2), default=0)
+    bmi = db.Column(db.Float(precision=2), default=23)
     daily_cal = db.Column(db.Integer, default=0)
 
     trainings_number = db.Column(db.Integer, default=0)
