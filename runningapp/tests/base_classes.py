@@ -8,6 +8,7 @@ from runningapp.models.training import TrainingModel
 from runningapp.models.user import UserProfileModel
 
 
+# TODO: change private classes to public
 class BaseApp:
     """Create base app"""
 

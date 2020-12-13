@@ -104,6 +104,7 @@ class UserRegister(Resource):
             user_data.save_to_db()
             user = UserModel.find_by_username(user_data.username)
             user_profile = UserProfileModel(user_id=user.id)
+            user_profile.calculate_bmi()
             user_profile.save_to_db()
             expires = datetime.timedelta(days=1)
             access_token = create_access_token(
