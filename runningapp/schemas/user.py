@@ -35,3 +35,9 @@ class ChangePasswordSchema(Schema):
 
     old_password = fields.Str()
     new_password = fields.Str()
+
+
+class UpdateCaloricNeedsSchema(Schema):
+    """Schema for UpdateDailyCaloricNeeds"""
+
+    daily_cal = fields.Integer()

@@ -9,13 +9,14 @@ from flask_jwt_extended import (
 )
 import datetime
 from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema
+from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema, UpdateCaloricNeedsSchema
 from runningapp.blacklist import BLACKLIST
 
 
 user_schema = UserSchema()
 user_profile_schema = UserProfileSchema()
 change_password_schema = ChangePasswordSchema()
+daily_needs_schema = UpdateCaloricNeedsSchema()
 
 
 class User(Resource):
@@ -182,3 +183,24 @@ class ChangePassword(Resource):
 
             return {"message": "Your password has been changed."}, 201
         return {"message": "Invalid credentials."}, 401
+
+
+# write tests
+class UpdateCaloricNeeds(Resource):
+    """Save a particular value as daily caloric needs"""
+
+    @classmethod
+    @jwt_required
+    def post(cls):
+        """Post method"""
+        current_user_id = get_jwt_identity()
+        user_profile = UserProfileModel.find_by_user_id(current_user_id)
+        json_data = daily_needs_schema.load(request.get_json())
+
+        user_profile.daily_cal = json_data['daily_cal']
+        try:
+            user_profile.save_to_db()
+        except:
+            return {"message": "An error has occurred updating the user."}, 500
+
+        return {"message": "Daily caloric needs have been updated", "daily_cal": json_data["daily_cal"]}, 201
