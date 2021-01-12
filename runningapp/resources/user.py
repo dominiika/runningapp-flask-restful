@@ -9,7 +9,12 @@ from flask_jwt_extended import (
 )
 import datetime
 from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema, UpdateCaloricNeedsSchema
+from runningapp.schemas.user import (
+    UserSchema,
+    UserProfileSchema,
+    ChangePasswordSchema,
+    UpdateCaloricNeedsSchema,
+)
 from runningapp.blacklist import BLACKLIST
 
 
@@ -197,10 +202,16 @@ class UpdateCaloricNeeds(Resource):
         user_profile = UserProfileModel.find_by_user_id(current_user_id)
         json_data = daily_needs_schema.load(request.get_json())
 
-        user_profile.daily_cal = json_data['daily_cal']
+        user_profile.daily_cal = json_data["daily_cal"]
         try:
             user_profile.save_to_db()
         except:
             return {"message": "An error has occurred updating the user."}, 500
 
-        return {"message": "Daily caloric needs have been updated", "daily_cal": json_data["daily_cal"]}, 201
+        return (
+            {
+                "message": "Daily caloric needs have been updated",
+                "daily_cal": json_data["daily_cal"],
+            },
+            201,
+        )

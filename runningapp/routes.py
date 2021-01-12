@@ -6,7 +6,8 @@ from runningapp.resources.user import (
     UserLogin,
     UserLogout,
     ChangePassword,
-    UserProfile, UpdateCaloricNeeds,
+    UserProfile,
+    UpdateCaloricNeeds,
 )
 from runningapp.resources.calculator import BmiCalculator, CaloricNeedsCalculator
 from runningapp.resources.admin import AdminManageUser, AdminManageUserList
@@ -37,4 +38,3 @@ def initialize_routes(api):
     api.add_resource(KilometersRunResource, "/total-kilometers-number")
     api.add_resource(CaloriesBurntResource, "/total-calories-number")
     api.add_resource(UpdateCaloricNeeds, "/update-daily-needs")
-
