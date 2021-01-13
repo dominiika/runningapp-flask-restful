@@ -156,89 +156,96 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
+
+    def __given_test_user_is_created(self):
         self.user1 = self._create_sample_user()
-        self.user2 = self._create_sample_user(username="user2")
         self.user_profile1 = UserProfileModel.find_by_user_id(self.user1.id)
-        self.user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
         self.access_token = self._get_access_token(self.client)
 
-    def test_update_user_profile_status_code_ok(self):
-        """Test if the status code is 200 if the user profile is found and updated"""
-        data = {
-            "gender": self.user_profile1.gender,
-            "age": self.user_profile1.age,
-            "height": self.user_profile1.height,
+    def __given_other_user_is_created(self):
+        self.user2 = self._create_sample_user(username="testuser2")
+        self.user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
+
+    def test_updates_user_profile_properties_correctly(self):
+
+        self.__given_test_user_is_created()
+        self.__given_test_user_profile_data_is_prepared()
+
+        self.__when_update_user_profile_is_sent_on_put_request(self.user_profile1.id)
+
+        self.__then_status_code_is_200_ok()
+        self.__then_user_profile_is_updated_correctly()
+
+    def __then_status_code_is_200_ok(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def __when_update_user_profile_is_sent_on_put_request(self, user_profile_id):
+        self.response = self.client.put(
+            path=f"userprofiles/{user_profile_id}",
+            data=json.dumps(self.user_profile_data),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+        )
+
+    def __given_test_user_profile_data_is_prepared(self):
+        self.user_profile_data = {
+            "gender": "Female",
+            "age": 24,
+            "height": 165,
             "weight": 55,
         }
-        response = self.client.put(
-            path=f"userprofiles/{self.user_profile1.id}",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
 
-        self.assertEqual(response.status_code, 200)
+    def __then_user_profile_is_updated_correctly(self):
+        self.assertEqual(self.user_profile1.gender, self.user_profile_data["gender"])
+        self.assertEqual(self.user_profile1.age, self.user_profile_data["age"])
+        self.assertEqual(self.user_profile1.height, self.user_profile_data["height"])
+        self.assertEqual(self.user_profile1.weight, self.user_profile_data["weight"])
 
-    def test_update_user_profile_status_code_not_found(self):
-        """Test if the status code is 404 if the user profile is not found"""
-        data = {
-            "gender": self.user_profile1.gender,
-            "age": self.user_profile1.age,
-            "height": self.user_profile1.height,
-            "weight": 55,
-        }
-        response = self.client.put(
-            path=f"userprofiles/10",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+    def test_does_not_update_if_user_profile_not_found(self):
 
-        self.assertEqual(response.status_code, 404)
+        non_existing_id = 10
+        self.__given_test_user_is_created()
+        self.__given_user_profile_is_none(non_existing_id)
+        self.__given_test_user_profile_data_is_prepared()
 
-    def test_update_user_profile_status_code_forbidden(self):
-        """Test if the status code is 403 if the user doesn't have permission to update the training"""
-        data = {
-            "gender": self.user_profile2.gender,
-            "age": self.user_profile2.age,
-            "height": self.user_profile2.height,
-            "weight": 55,
-        }
-        response = self.client.put(
-            path=f"userprofiles/{self.user_profile2.id}",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+        self.__when_update_user_profile_is_sent_on_put_request(non_existing_id)
 
-        self.assertEqual(response.status_code, 403)
+        self.__then_status_code_is_404_not_found()
 
-    def test_put_method_updates_user_profile_in_db(self):
-        """Test if put method updates the user profile in the database"""
-        data = {"gender": "Female", "age": 25, "height": 170, "weight": 60}
-        self.client.put(
-            path=f"userprofiles/{self.user_profile1.id}",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+    def __then_status_code_is_404_not_found(self):
+        self.assertEqual(self.response.status_code, 404)
 
-        self.assertEqual(self.user_profile1.gender, data["gender"])
-        self.assertEqual(self.user_profile1.age, data["age"])
-        self.assertEqual(self.user_profile1.height, data["height"])
+    def __given_user_profile_is_none(self, user_profile_id):
+        user_profile = UserProfileModel.find_by_id(user_profile_id)
+
+        self.assertIsNone(user_profile)
+
+    def test_does_not_update_if_no_permission(self):
+
+        self.__given_test_user_is_created()
+        self.__given_other_user_is_created()
+        self.__given_test_user_profile_data_is_prepared()
+
+        self.__when_update_user_profile_is_sent_on_put_request(self.user_profile2.id)
+
+        self.__then_status_code_is_403_forbidden()
+        self.__then_user_profile_is_not_updated()
+
+    def __then_status_code_is_403_forbidden(self):
+        self.assertEqual(self.response.status_code, 403)
+
+    def __then_user_profile_is_not_updated(self):
+        self.assertNotEqual(self.user_profile2.gender, self.user_profile_data["gender"])
+        self.assertNotEqual(self.user_profile2.age, self.user_profile_data["age"])
+        self.assertNotEqual(self.user_profile2.height, self.user_profile_data["height"])
+        self.assertNotEqual(self.user_profile2.weight, self.user_profile_data["weight"])
 
     def test_updates_daily_caloric_needs_correctly(self):
         """Test if correct daily caloric needs are returned"""
 
-        # self.__given_test_user_is_created()
+        self.__given_test_user_is_created()
         self.__given_test_daily_cal_is_prepared()
 
         self.__when_update_daily_needs_is_sent_on_post_request()
@@ -246,11 +253,6 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__then_status_code_is_201_created()
         self.__then_correct_daily_cal_is_returned()
         self.__then_user_profile_is_updated_with_correct_daily_cal()
-
-    # TODO move creating user to this method
-    # def __given_test_user_is_created(self):
-    #     self.user = self._create_sample_user(username='test_user')
-    #     self.user_profile = UserProfileModel.find_by_user_id(self.user.id)
 
     def __given_test_daily_cal_is_prepared(self):
         self.data = {'daily_cal': 2500}
