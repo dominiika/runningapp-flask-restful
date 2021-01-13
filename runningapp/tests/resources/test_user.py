@@ -13,6 +13,7 @@ from runningapp.blacklist import BLACKLIST
 user_list_schema = UserSchema(many=True)
 
 
+# TODO REFACTOR ALL THE TESTS
 class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
@@ -233,6 +234,47 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.assertEqual(self.user_profile1.gender, data["gender"])
         self.assertEqual(self.user_profile1.age, data["age"])
         self.assertEqual(self.user_profile1.height, data["height"])
+
+    def test_updates_daily_caloric_needs_correctly(self):
+        """Test if correct daily caloric needs are returned"""
+
+        # self.__given_test_user_is_created()
+        self.__given_test_daily_cal_is_prepared()
+
+        self.__when_update_daily_needs_is_sent_on_post_request()
+
+        self.__then_status_code_is_201_created()
+        self.__then_correct_daily_cal_is_returned()
+        self.__then_user_profile_is_updated_with_correct_daily_cal()
+
+    # TODO move creating user to this method
+    # def __given_test_user_is_created(self):
+    #     self.user = self._create_sample_user(username='test_user')
+    #     self.user_profile = UserProfileModel.find_by_user_id(self.user.id)
+
+    def __given_test_daily_cal_is_prepared(self):
+        self.data = {'daily_cal': 2500}
+
+    def __when_update_daily_needs_is_sent_on_post_request(self):
+        self.response = self.client.post(
+            path=f"update-daily-needs",
+            data=json.dumps(self.data),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._get_access_token(self.client)}",
+            }
+        )
+
+    def __then_status_code_is_201_created(self):
+        self.assertEqual(self.response.status_code, 201)
+
+    def __then_correct_daily_cal_is_returned(self):
+        expected_data = self.data['daily_cal']
+        self.assertEqual(self.response.json['daily_cal'], expected_data)
+
+    def __then_user_profile_is_updated_with_correct_daily_cal(self):
+        expected_daily_cal = self.data['daily_cal']
+        self.assertEqual(self.user_profile1.daily_cal, expected_daily_cal)
 
 
 class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
