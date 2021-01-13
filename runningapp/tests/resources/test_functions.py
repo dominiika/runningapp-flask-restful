@@ -11,6 +11,7 @@ caloric_needs_functions = CaloricNeedsCalculatorFunctions()
 bmi_functions = BmiCalculatorFunctions()
 
 
+# TODO REFACTOR ALL THE TESTS
 class FunctionsTests(unittest.TestCase):
     def test_calculate_bmi_success(self):
         """Test if BMI is calculated correctly."""

@@ -11,6 +11,7 @@ from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseAdmin
 user_list_schema = UserSchema(many=True)
 
 
+# TODO REFACTOR ALL THE TESTS
 class AdminManageUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseAdmin):
     """Test admin interface"""
 

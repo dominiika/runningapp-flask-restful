@@ -10,6 +10,7 @@ from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseTrainin
 training_list_schema = TrainingSchema(many=True)
 
 
+# TODO REFACTOR ALL THE TESTS
 class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
     def setUp(self):
         """Set up a test app, test client and test database"""

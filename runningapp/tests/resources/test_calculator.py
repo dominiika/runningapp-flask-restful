@@ -4,6 +4,7 @@ from runningapp import create_app
 from runningapp.tests.base_classes import BaseApp
 
 
+# TODO REFACTOR ALL THE TESTS
 class CalculatorTests(unittest.TestCase, BaseApp):
     """Test calculators"""
 

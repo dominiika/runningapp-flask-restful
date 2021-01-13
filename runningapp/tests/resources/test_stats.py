@@ -6,6 +6,7 @@ from runningapp.models.training import TrainingModel
 from runningapp.tests.base_classes import BaseApp, BaseDb, BaseTraining, BaseUser
 
 
+# TODO REFACTOR ALL THE TESTS
 class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
     """Test stats"""
 
