@@ -255,7 +255,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__then_user_profile_is_updated_with_correct_daily_cal()
 
     def __given_test_daily_cal_is_prepared(self):
-        self.data = {'daily_cal': 2500}
+        self.data = {"daily_cal": 2500}
 
     def __when_update_daily_needs_is_sent_on_post_request(self):
         self.response = self.client.post(
@@ -264,18 +264,18 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self._get_access_token(self.client)}",
-            }
+            },
         )
 
     def __then_status_code_is_201_created(self):
         self.assertEqual(self.response.status_code, 201)
 
     def __then_correct_daily_cal_is_returned(self):
-        expected_data = self.data['daily_cal']
-        self.assertEqual(self.response.json['daily_cal'], expected_data)
+        expected_data = self.data["daily_cal"]
+        self.assertEqual(self.response.json["daily_cal"], expected_data)
 
     def __then_user_profile_is_updated_with_correct_daily_cal(self):
-        expected_daily_cal = self.data['daily_cal']
+        expected_daily_cal = self.data["daily_cal"]
         self.assertEqual(self.user_profile1.daily_cal, expected_daily_cal)
 
 
