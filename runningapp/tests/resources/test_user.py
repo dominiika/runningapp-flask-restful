@@ -119,13 +119,23 @@ class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
-        self.user1 = self._create_sample_user()
-        self.user2 = self._create_sample_user(username="user2")
+
+    def test_gets_user_list_data(self):
+
+        self.__given_users_are_created()
+
+        self.__when_get_request_is_sent()
+
+        self.__then_status_code_is_200_ok()
+        self.__then_correct_user_data_is_returned()
+
+    def __given_users_are_created(self):
+        self._create_sample_user()
+        self._create_sample_user(username="user2")
         self.access_token = self._get_access_token(self.client)
 
-    def test_get_users_status_code_ok(self):
-        """Test if the status code is 200"""
-        response = self.client.get(
+    def __when_get_request_is_sent(self):
+        self.response = self.client.get(
             path=f"users/",
             headers={
                 "Content-Type": "application/json",
@@ -133,21 +143,14 @@ class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
             },
         )
 
-        self.assertEqual(response.status_code, 200)
+    def __then_status_code_is_200_ok(self):
+        self.assertEqual(self.response.status_code, 200)
 
-    def test_get_users_data(self):
-        """Test if the correct data is returned"""
-        response = self.client.get(
-            path=f"users/",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+    def __then_correct_user_data_is_returned(self):
         trainings_data = user_list_schema.dump(UserModel.find_all())
 
-        self.assertEqual(len(response.json["users"]), 2)
-        self.assertEqual(response.json["users"], trainings_data)
+        self.assertEqual(len(self.response.json["users"]), 2)
+        self.assertEqual(self.response.json["users"], trainings_data)
 
 
 class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
@@ -166,7 +169,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.user2 = self._create_sample_user(username="testuser2")
         self.user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
 
-    def test_updates_user_profile_properties_correctly(self):
+    def test_updates_properties_correctly(self):
 
         self.__given_test_user_is_created()
         self.__given_test_user_profile_data_is_prepared()
