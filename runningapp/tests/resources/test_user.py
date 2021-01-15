@@ -20,97 +20,103 @@ class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
+
+    def test_gets_user_data(self):
+        self.__given_test_user_is_created()
+
+        self.__when_get_request_is_sent(self.user.id)
+
+        self.__then_status_code_is_200_ok()
+        self.__then_correct_user_data_is_returned()
+
+    def __given_test_user_is_created(self):
         self.user = self._create_sample_user()
         self.access_token = self._get_access_token(self.client)
 
-    def test_get_user_status_code_ok(self):
-        """Test if the status code is 200 if the user is found"""
-        response = self.client.get(
-            path=f"users/{self.user.id}",
+    def __when_get_request_is_sent(self, user_id):
+        self.response = self.client.get(
+            path=f"users/{user_id}",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
             },
         )
 
-        self.assertEqual(response.status_code, 200)
+    def __then_status_code_is_200_ok(self):
+        self.assertEqual(self.response.status_code, 200)
 
-    def test_get_user_status_code_not_found(self):
-        """Test if the status code is 404 if the user is not found"""
-        response = self.client.get(
-            path=f"users/10",
+    def __then_correct_user_data_is_returned(self):
+        self.assertEqual(self.response.json["username"], self.user.username)
+        self.assertEqual(self.response.json["id"], self.user.id)
+
+    def test_does_not_return_user_data_if_not_found(self):
+        non_existing_user_id = 10
+
+        self.__given_test_user_is_created()
+
+        self.__when_get_request_is_sent(non_existing_user_id)
+
+        self.__then_status_code_is_404_not_found()
+        self.__then_no_user_data_is_returned()
+
+    def __then_status_code_is_404_not_found(self):
+        self.assertEqual(self.response.status_code, 404)
+
+    def __then_no_user_data_is_returned(self):
+        self.assertNotIn('user', self.response.json)
+
+    def test_deletes_user(self):
+
+        self.__given_test_user_is_created()
+
+        self.__when_delete_request_is_sent(self.user.id)
+
+        self.__then_status_code_is_200_ok()
+        self.__then_user_object_is_deleted()
+
+    def __when_delete_request_is_sent(self, user_id):
+        self.response = self.client.delete(
+            path=f"users/{user_id}",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
             },
         )
 
-        self.assertEqual(response.status_code, 404)
+    def __then_user_object_is_deleted(self):
+        user = UserModel.find_by_id(self.user.id)
 
-    def test_get_user_data(self):
-        """Test if the correct data is returned if the user is found"""
-        response = self.client.get(
-            path=f"users/{self.user.id}",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+        self.assertIsNone(user)
 
-        self.assertEqual(response.json["username"], self.user.username)
-        self.assertEqual(response.json["id"], self.user.id)
+    def test_does_not_delete_user_if_not_found(self):
+        non_existing_user_id = 10
 
-    def test_delete_user_status_code_ok(self):
-        """Test if the status code is 200 if the user is found and deleted"""
-        response = self.client.delete(
-            path=f"users/{self.user.id}",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+        self.__given_test_user_is_created()
 
-        self.assertEqual(response.status_code, 200)
+        self.__when_delete_request_is_sent(non_existing_user_id)
 
-    def test_delete_user_status_code_not_found(self):
-        """Test if the status code is 404 if the user is not found"""
-        response = self.client.delete(
-            path=f"users/10",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+        self.__then_status_code_is_404_not_found()
 
-        self.assertEqual(response.status_code, 404)
+    def test_does_not_delete_user_if_no_permission(self):
+        self.__given_test_user_is_created()
+        self.__given_other_user_is_created()
 
-    def test_delete_user_status_code_forbidden(self):
-        """Test if the status code is 403 if the user doesn't have permission to delete the user"""
-        self._create_sample_user(username="user2")
-        access_token2 = self._get_access_token(client=self.client, username="user2")
-        response = self.client.delete(
-            path=f"users/{self.user.id}",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {access_token2}",
-            },
-        )
+        self.__when_delete_request_is_sent(self.user2.id)
 
-        self.assertEqual(response.status_code, 403)
+        self.__then_status_code_is_403_forbidden()
+        self.__then_user_object_is_not_deleted()
 
-    def test_delete_method_deletes_user_from_db(self):
-        """Test if delete method deletes the user from the database"""
-        self.client.delete(
-            path=f"users/{self.user.id}",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.access_token}",
-            },
-        )
+    def __then_status_code_is_403_forbidden(self):
+        self.assertEqual(self.response.status_code, 403)
 
-        training = UserModel.find_by_id(self.user.id)
+    def __given_other_user_is_created(self):
+        self.user2 = self._create_sample_user(username="testuser2")
+        self.user_profile2 = UserProfileModel.find_by_user_id(self.user2.id)
 
-        self.assertIsNone(training)
+    def __then_user_object_is_not_deleted(self):
+        user = UserModel.find_by_id(self.user2.id)
+
+        self.assertIsNotNone(user)
 
 
 class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
@@ -127,7 +133,7 @@ class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__when_get_request_is_sent()
 
         self.__then_status_code_is_200_ok()
-        self.__then_correct_user_data_is_returned()
+        self.__then_correct_user_list_data_is_returned()
 
     def __given_users_are_created(self):
         self._create_sample_user()
@@ -146,7 +152,7 @@ class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def __then_status_code_is_200_ok(self):
         self.assertEqual(self.response.status_code, 200)
 
-    def __then_correct_user_data_is_returned(self):
+    def __then_correct_user_list_data_is_returned(self):
         trainings_data = user_list_schema.dump(UserModel.find_all())
 
         self.assertEqual(len(self.response.json["users"]), 2)
@@ -177,7 +183,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__when_update_user_profile_is_sent_on_put_request(self.user_profile1.id)
 
         self.__then_status_code_is_200_ok()
-        self.__then_user_profile_is_updated_correctly()
+        self.__then_user_profile_object_is_updated_correctly()
 
     def __then_status_code_is_200_ok(self):
         self.assertEqual(self.response.status_code, 200)
@@ -200,7 +206,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
             "weight": 55,
         }
 
-    def __then_user_profile_is_updated_correctly(self):
+    def __then_user_profile_object_is_updated_correctly(self):
         self.assertEqual(self.user_profile1.gender, self.user_profile_data["gender"])
         self.assertEqual(self.user_profile1.age, self.user_profile_data["age"])
         self.assertEqual(self.user_profile1.height, self.user_profile_data["height"])
@@ -255,7 +261,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
         self.__then_status_code_is_201_created()
         self.__then_correct_daily_cal_is_returned()
-        self.__then_user_profile_is_updated_with_correct_daily_cal()
+        self.__then_user_profile_object_is_updated_with_correct_daily_cal()
 
     def __given_test_daily_cal_is_prepared(self):
         self.data = {"daily_cal": 2500}
@@ -277,7 +283,7 @@ class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         expected_data = self.data["daily_cal"]
         self.assertEqual(self.response.json["daily_cal"], expected_data)
 
-    def __then_user_profile_is_updated_with_correct_daily_cal(self):
+    def __then_user_profile_object_is_updated_with_correct_daily_cal(self):
         expected_daily_cal = self.data["daily_cal"]
         self.assertEqual(self.user_profile1.daily_cal, expected_daily_cal)
 
