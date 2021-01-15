@@ -63,7 +63,7 @@ class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.assertEqual(self.response.status_code, 404)
 
     def __then_no_user_data_is_returned(self):
-        self.assertNotIn('user', self.response.json)
+        self.assertNotIn("user", self.response.json)
 
     def test_deletes_user(self):
 
