@@ -41,7 +41,7 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
     def test_get_training_status_code_not_found(self):
         """Test if the status code is 404 if the training is not found"""
         response = self.client.get(
-            path=f"trainings/100",
+            path="trainings/100",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
@@ -125,7 +125,8 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertIsNone(training)
 
     def test_update_training_status_code_ok(self):
-        """Test if the status code is 200 if the training is found and updated"""
+        """Test if the status code is 200
+        if the training is found and updated"""
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
@@ -150,7 +151,7 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
             "time_in_seconds": 3700,
         }
         response = self.client.put(
-            path=f"trainings/10",
+            path="trainings/10",
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",

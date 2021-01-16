@@ -33,7 +33,8 @@ class AdminManageUser(Resource):
     @classmethod
     @jwt_required
     def put(cls, user_id):
-        """Change username, password or promote the user to be the admin or staff"""
+        """Change username, password or promote the user
+        to be the admin or staff"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
             return (
@@ -45,7 +46,7 @@ class AdminManageUser(Resource):
 
         user = UserModel.find_by_id(user_id)
         if not user:
-            return {"message": f"User not found."}, 404
+            return {"message": "User not found."}, 404
 
         user_data = user_schema.load(request.get_json())
         user.username = user_data.username

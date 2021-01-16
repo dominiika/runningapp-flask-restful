@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import List
 from runningapp.models.user import UserModel, UserProfileModel
 
-# source: https://sites.google.com/site/compendiumofphysicalactivities/Activity-Categories/running
+# source:
+# https://sites.google.com/site/compendiumofphysicalactivities/Activity-Categories/running
 
 
 class TrainingModel(db.Model):
@@ -87,7 +88,8 @@ class TrainingModel(db.Model):
         return user_profile.weight
 
     def _calculate_met_value(self) -> int:
-        """Calculate the metabolic equivalent of a task to measure the body's expenditure of energy"""
+        """Calculate the metabolic equivalent of a task
+        to measure the body's expenditure of energy"""
         met = 0
         if self.avg_tempo > 22:
             met = 23
@@ -117,7 +119,8 @@ class TrainingModel(db.Model):
 
     @classmethod
     def calculate_total_calories(cls) -> int:
-        """Calculate total calories burnt by all the users during all the trainings"""
+        """Calculate total calories burnt
+        by all the users during all the trainings"""
         trainings = cls.query.all()
         calories_number = 0
         for training in trainings:
