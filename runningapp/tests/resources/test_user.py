@@ -296,23 +296,27 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self._set_up_test_db(db)
 
     def test_registers_user(self):
-        self.__given_register_user_data_is_prepared()
+        self.__given_register_data_is_prepared()
 
-        self.__when_post_request_is_sent("register", self.register_data)
+        self.__when_post_request_is_sent("register", self.data)
 
         self.__then_status_code_is_201_created()
         self.__then_user_object_is_saved_in_db()
-        self.__then_correct_register_user_data_is_returned()
+        self.__then_correct_user_data_is_returned()
+
+    def __given_register_data_is_prepared(self):
+        register_user_data = {"username": "user2", "password": "testpass"}
+        self.__prepare_data(register_user_data)
 
     def __then_user_object_is_saved_in_db(self):
         user = UserModel.find_all()[-1]
-        is_password_correct = check_password_hash(user.password, self.register_data['password'])
+        is_password_correct = check_password_hash(user.password, self.data['password'])
 
-        self.assertEqual(user.username, self.register_data['username'])
+        self.assertEqual(user.username, self.data['username'])
         self.assertTrue(is_password_correct)
 
-    def __then_correct_register_user_data_is_returned(self):
-        user = UserModel.find_by_username(self.register_data['username'])
+    def __then_correct_user_data_is_returned(self):
+        user = UserModel.find_by_username(self.data['username'])
 
         self.assertEqual(self.response.json['username'], user.username)
         self.assertEqual(self.response.json['user'], user.id)
@@ -321,15 +325,15 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def __then_status_code_is_201_created(self):
         self.assertEqual(self.response.status_code, 201)
 
-    def __when_post_request_is_sent(self, path, data):
+    def __when_post_request_is_sent(self, path, data, access_token=""):
         self.response = self.client.post(
             path=path,
             data=json.dumps(data),
-            headers={"Content-Type": "application/json", },
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            }
         )
-
-    def __given_register_user_data_is_prepared(self):
-        self.register_data = {"username": "user2", "password": "testpass"}
 
     def __given_test_user_is_created(self):
         self.user1 = self._create_sample_user(username="testuser")
@@ -338,14 +342,20 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
     def test_does_not_register_user_if_already_exists(self):
         users_number = len(UserModel.find_all())
-
         self.__given_test_user_is_created()
-        self.__given_already_existing_data_is_prepared()
+        self.__given_existing_data_is_prepared()
 
-        self.__when_post_request_is_sent("register", self.existing_data)
+        self.__when_post_request_is_sent("register", self.data)
 
         self.__then_status_code_is_400_bad_request()
         self.__then_no_new_user_is_registered(users_number)
+
+    def __given_existing_data_is_prepared(self):
+        existing_user_data = {
+            "username": "testuser",
+            "password": "testpass"
+        }
+        self.__prepare_data(existing_user_data)
 
     def __then_no_new_user_is_registered(self, previous_number):
         new_users_number = len(UserModel.find_all())
@@ -355,47 +365,59 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def __then_status_code_is_400_bad_request(self):
         self.assertEqual(self.response.status_code, 400)
 
-    def __given_already_existing_data_is_prepared(self):
-        self.existing_data = {
-            "username": "testuser",
-            "password": "testpass"
-        }
+    def __prepare_data(self, data):
+        self.data = data
 
-    #
-    #
-    # def test_login_status_code_ok(self):
-    #     """Test if the status code is 200 if the user logged in successfully"""
-    #     data = {"username": self.user.username, "password": "testpass"}
-    #     response = self.client.post(
-    #         path=f"login",
-    #         data=json.dumps(data),
-    #         headers={"Content-Type": "application/json",},
-    #     )
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #
-    # def test_login_status_code_unauthorized(self):
-    #     """Test if the status code is 401 if the user enters invalid credentials"""
-    #     data = {"username": self.user.username, "password": "wrongpass"}
-    #     response = self.client.post(
-    #         path=f"login",
-    #         data=json.dumps(data),
-    #         headers={"Content-Type": "application/json",},
-    #     )
-    #
-    #     self.assertEqual(response.status_code, 401)
-    #
-    # def test_login_get_access_token(self):
-    #     """Test if the access token is returned after logging in"""
-    #     data = {"username": self.user.username, "password": "testpass"}
-    #     response = self.client.post(
-    #         path=f"login",
-    #         data=json.dumps(data),
-    #         headers={"Content-Type": "application/json",},
-    #     )
-    #
-    #     self.assertIn("access_token", response.json)
-    #
+    def test_logins_user(self):
+        self.__given_test_user_is_created()
+        self.__given_login_data_is_prepared()
+
+        self.__when_post_request_is_sent("login", self.data)
+
+        self.__then_status_code_is_200_ok()
+        self.__then_correct_user_data_is_returned()
+
+    def __given_login_data_is_prepared(self):
+        login_user_data = {"username": self.user1.username, "password": "testpass"}
+        self.__prepare_data(login_user_data)
+
+    def __then_status_code_is_200_ok(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_does_not_login_if_invalid_credentials(self):
+        self.__given_test_user_is_created()
+        self.__given_invalid_login_data_is_prepared()
+
+        self.__when_post_request_is_sent("login", self.data)
+
+        self.__then_status_code_is_401_unauthorized()
+        self.__then_access_token_is_not_returned()
+
+    def __given_invalid_login_data_is_prepared(self):
+        invalid_data = {"username": self.user1.username, "password": "wrongpass"}
+        self.__prepare_data(invalid_data)
+
+    def __then_access_token_is_not_returned(self):
+        self.assertNotIn("access_token", self.response.json)
+
+    def __then_status_code_is_401_unauthorized(self):
+        self.assertEqual(self.response.status_code, 401)
+
+    def test_logouts_user(self):
+        self.__given_test_user_is_created()
+        self.__given_login_data_is_prepared()
+
+        self.__when_post_request_is_sent("login", self.data)
+        self.__when_post_request_is_sent("logout", {}, self.access_token)
+
+        self.__then_status_code_is_200_ok()
+        self.__then_access_token_is_in_blacklist()
+
+    def __then_access_token_is_in_blacklist(self):
+        jti = get_raw_jwt()["jti"]
+
+        self.assertIn(jti, BLACKLIST)
+
     # def test_logout_status_code_ok(self):
     #     """Test if the status code is 200 if the user logged out successfully"""
     #     response = self.client.post(
