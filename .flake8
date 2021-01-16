@@ -9,3 +9,4 @@ exclude =
   README.md
   requirements.txt
   .pytest_cache
+  runningapp/secret_key.py

@@ -49,7 +49,8 @@ def create_app():
 
     @jwt.token_in_blacklist_loader
     def check_if_token_in_blacklist(decrypted_token):
-        """Check if the token is in the blacklist - if the user has been logged out"""
+        """Check if the token is in the blacklist
+        if the user has been logged out"""
         return (
             decrypted_token["jti"] in BLACKLIST
         )  # if True, go to revoked_token_callback
@@ -57,7 +58,10 @@ def create_app():
     @jwt.revoked_token_loader
     def revoked_token_callback():
         """Return unauthorized error"""
-        return {"message": "You have been logged out.", "error": "token_revoked"}, 401
+        return (
+            {"message": "You have been logged out.", "error": "token_revoked"},
+            401,
+        )
 
     initialize_routes(api)
 

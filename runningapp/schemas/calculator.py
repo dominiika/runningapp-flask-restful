@@ -15,5 +15,7 @@ class CaloricNeedsSchema(Schema):
     weight = fields.Float(required=True)
     height = fields.Float(required=True)
     age = fields.Integer(required=True)
-    gender = fields.Str(validate=[validate.OneOf(("Male", "Female"))], required=True)
+    gender = fields.Str(
+        validate=[validate.OneOf(("Male", "Female"))], required=True
+    )
     trainings_per_week = fields.Integer(required=True)

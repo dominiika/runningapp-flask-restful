@@ -71,7 +71,9 @@ class CalculatorTests(unittest.TestCase, BaseApp):
 
         expected_caloric_needs = 2512
 
-        self.assertEqual(response.json["daily_caloric_needs"], expected_caloric_needs)
+        self.assertEqual(
+            response.json["daily_caloric_needs"], expected_caloric_needs
+        )
 
 
 if __name__ == "__main__":

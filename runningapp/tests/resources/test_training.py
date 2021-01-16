@@ -4,7 +4,12 @@ from runningapp import create_app
 from runningapp.db import db
 from runningapp.models.training import TrainingModel
 from runningapp.schemas.training import TrainingSchema
-from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseTraining
+from runningapp.tests.base_classes import (
+    BaseApp,
+    BaseDb,
+    BaseUser,
+    BaseTraining,
+)
 
 
 training_list_schema = TrainingSchema(many=True)
@@ -64,7 +69,8 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         )
 
     def test_delete_training_status_code_ok(self):
-        """Test if the status code is 200 if the training is found and deleted"""
+        """Test if the status code is 200
+        if the training is found and deleted"""
         response = self.client.delete(
             path=f"trainings/{self.training.id}",
             headers={
@@ -78,7 +84,7 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
     def test_delete_training_status_code_not_found(self):
         """Test if the status code is 404 if the training is not found"""
         response = self.client.delete(
-            path=f"trainings/10",
+            path="trainings/10",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
@@ -88,9 +94,12 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertEqual(response.status_code, 404)
 
     def test_delete_training_status_code_forbidden(self):
-        """Test if the status code is 403 if the user doesn't have permission to delete the training"""
+        """Test if the status code is 403
+        if the user doesn't have permission to delete the training"""
         self._create_sample_user(username="user2")
-        access_token2 = self._get_access_token(client=self.client, username="user2")
+        access_token2 = self._get_access_token(
+            client=self.client, username="user2"
+        )
         response = self.client.delete(
             path=f"trainings/{self.training.id}",
             headers={
@@ -152,9 +161,12 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertEqual(response.status_code, 404)
 
     def test_update_training_status_code_forbidden(self):
-        """Test if the status code is 403 if the user doesn't have permission to update the training"""
+        """Test if the status code is 403
+        if the user doesn't have permission to update the training"""
         self._create_sample_user(username="user2")
-        access_token2 = self._get_access_token(client=self.client, username="user2")
+        access_token2 = self._get_access_token(
+            client=self.client, username="user2"
+        )
         data = {
             "name": self.training.name,
             "distance": self.training.distance,
@@ -216,7 +228,9 @@ class TrainingTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
         self.assertEqual(training.avg_tempo, expected_avg_tempo)
 
 
-class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
+class TrainingListTests(
+    unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining
+):
     def setUp(self):
         """Set up a test app, test client and test database"""
         self.app = self._set_up_test_app(create_app)
@@ -230,7 +244,7 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
     def test_get_trainings_status_code_ok(self):
         """Test if the status code is 200"""
         response = self.client.get(
-            path=f"trainings/",
+            path="trainings/",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
@@ -242,7 +256,7 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
     def test_get_trainings_data(self):
         """Test if the correct data is returned"""
         response = self.client.get(
-            path=f"trainings/",
+            path="trainings/",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
@@ -254,7 +268,9 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
 
         expected_trainings_num = 2
 
-        self.assertEqual(len(response.json["trainings"]), expected_trainings_num)
+        self.assertEqual(
+            len(response.json["trainings"]), expected_trainings_num
+        )
         self.assertEqual(response.json["trainings"], trainings_data)
 
     def test_post_training_status_code_created(self):
@@ -265,7 +281,7 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
             "time_in_seconds": 3600,
         }
         response = self.client.post(
-            path=f"trainings/",
+            path="trainings/",
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
@@ -284,7 +300,7 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
             "time_in_seconds": 3600,
         }
         response = self.client.post(
-            path=f"trainings/",
+            path="trainings/",
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",
@@ -302,7 +318,7 @@ class TrainingListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraini
             "time_in_seconds": 3600,
         }
         self.client.post(
-            path=f"trainings/",
+            path="trainings/",
             data=json.dumps(data),
             headers={
                 "Content-Type": "application/json",

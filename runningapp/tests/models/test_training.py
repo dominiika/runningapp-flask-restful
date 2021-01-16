@@ -1,11 +1,18 @@
 import unittest
 from runningapp import create_app
 from runningapp.db import db
-from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser, BaseTraining
+from runningapp.tests.base_classes import (
+    BaseApp,
+    BaseDb,
+    BaseUser,
+    BaseTraining,
+)
 from runningapp.models.training import TrainingModel
 
 
-class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining):
+class TrainingModelTests(
+    unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTraining
+):
     def setUp(self):
         """Set up a test app, test client and test database"""
         self.app = self._set_up_test_app(create_app)
@@ -27,7 +34,8 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertIsNotNone(found_training)
 
     def test_training_is_deleted_from_db(self):
-        """Test if the training has been successfully deleted from the database"""
+        """Test if the training
+        has been successfully deleted from the database"""
         training = self._create_sample_training(self.user)
         training.delete_from_db()
         found_training = TrainingModel.find_by_name("test training")
@@ -36,20 +44,25 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
 
     def test_find_by_name(self):
         """Test if the training is found"""
-        training = self._create_sample_training(user=self.user, name="test training")
+        training = self._create_sample_training(
+            user=self.user, name="test training"
+        )
         found_training = TrainingModel.find_by_name("test training")
 
         self.assertEqual(found_training, training)
 
     def test_find_by_name_no_training(self):
-        """Test if None is returned if the training with the given name doesn't exist"""
+        """Test if None is returned
+        if the training with the given name doesn't exist"""
         found_training = TrainingModel.find_by_name("test training")
 
         self.assertIsNone(found_training)
 
     def test_find_by_name_and_user_id(self):
         """Test if the training is found"""
-        training = self._create_sample_training(user=self.user, name="test training")
+        training = self._create_sample_training(
+            user=self.user, name="test training"
+        )
         found_training = TrainingModel.find_by_name_and_user_id(
             "test training", self.user.id
         )
@@ -74,7 +87,8 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertEqual(training, found_training)
 
     def test_find_by_id_no_training(self):
-        """Test if None is returned if the training with the given id doesn't exist"""
+        """Test if None is returned
+        if the training with the given id doesn't exist"""
         found_training = TrainingModel.find_by_id(1)
 
         self.assertIsNone(found_training)
@@ -83,7 +97,9 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         """Test if all the user's trainings are found"""
         self._create_sample_training(self.user, "test training1")
         self._create_sample_training(self.user, "test training2")
-        found_trainings = TrainingModel.find_all_by_user_id(user_id=self.user.id)
+        found_trainings = TrainingModel.find_all_by_user_id(
+            user_id=self.user.id
+        )
 
         self.assertEqual(len(found_trainings), 2)
 
@@ -118,15 +134,20 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertIn(training3, found_trainings)
 
     def test_find_all_no_trainings(self):
-        """Test if an empty list is returned if there are no trainings in the database"""
+        """Test if an empty list is returned
+        if there are no trainings in the database"""
         found_trainings = TrainingModel.find_all()
 
         self.assertEqual(found_trainings, [])
 
     def test_get_total_kilometers(self):
         """Test if correct total kilometers number is returned"""
-        self._create_sample_training(user=self.user, name="test training1", distance=10)
-        self._create_sample_training(user=self.user, name="test training2", distance=7)
+        self._create_sample_training(
+            user=self.user, name="test training1", distance=10
+        )
+        self._create_sample_training(
+            user=self.user, name="test training2", distance=7
+        )
         kilometers_number = TrainingModel.get_total_kilometers()
 
         expected_number = 17
@@ -152,7 +173,10 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
     def test_calculate_met_value_success(self):
         """Test if the met value is calculated correctly"""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=15, time_in_seconds=3600
+            user=self.user,
+            name="test training1",
+            distance=15,
+            time_in_seconds=3600,
         )
         training.calculate_average_tempo()
 
@@ -164,7 +188,10 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
     def test_calculate_met_value_failure(self):
         """Test if the met value is calculated incorrectly"""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=15, time_in_seconds=3600
+            user=self.user,
+            name="test training1",
+            distance=15,
+            time_in_seconds=3600,
         )
         training.calculate_average_tempo()
 
@@ -175,7 +202,10 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
     def test_calculate_calories_burnt_success(self):
         """Test if calories burnt during 1 training are calculated correctly"""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=15, time_in_seconds=3600
+            user=self.user,
+            name="test training1",
+            distance=15,
+            time_in_seconds=3600,
         )
         training.calculate_average_tempo()
         training.calculate_calories_burnt()
@@ -185,9 +215,13 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertEqual(training.calories, expected_calories_burnt)
 
     def test_calculate_calories_burnt_failure(self):
-        """Test if calories burnt during 1 training are calculated incorrectly"""
+        """Test if calories burnt during 1 training
+         are calculated incorrectly"""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=15, time_in_seconds=3600
+            user=self.user,
+            name="test training1",
+            distance=15,
+            time_in_seconds=3600,
         )
         training.calculate_average_tempo()
         training.calculate_calories_burnt()
@@ -197,9 +231,13 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertNotEqual(training.calories, wrong_calories_burnt)
 
     def test_calculate_average_tempo_success(self):
-        """Test if the average tempo during a training is calculated correctly."""
+        """Test if the average tempo during a training
+         is calculated correctly."""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=7, time_in_seconds=1800
+            user=self.user,
+            name="test training1",
+            distance=7,
+            time_in_seconds=1800,
         )
 
         training.calculate_average_tempo()
@@ -208,9 +246,13 @@ class TrainingModelTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseTrain
         self.assertEqual(training.avg_tempo, expected_tempo)
 
     def test_calculate_average_tempo_failure(self):
-        """Test if the average tempo during a training is calculated incorrectly."""
+        """Test if the average tempo during a training
+        is calculated incorrectly."""
         training = self._create_sample_training(
-            user=self.user, name="test training1", distance=7, time_in_seconds=1800
+            user=self.user,
+            name="test training1",
+            distance=7,
+            time_in_seconds=1800,
         )
 
         training.calculate_average_tempo()

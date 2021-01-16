@@ -10,7 +10,13 @@ class UserProfileSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = UserProfileModel
-        dump_only = ("id", "bmi", "daily_cal", "trainings_number", "kilometers_run")
+        dump_only = (
+            "id",
+            "bmi",
+            "daily_cal",
+            "trainings_number",
+            "kilometers_run",
+        )
 
         load_instance = True
         include_fk = True

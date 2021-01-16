@@ -3,7 +3,7 @@ from flask import request
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_claims
 from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.schemas.user import UserSchema, UserProfileSchema, ChangePasswordSchema
+from runningapp.schemas.user import UserSchema
 
 
 user_schema = UserSchema()
@@ -18,11 +18,16 @@ class AdminManageUser(Resource):
         """Get the user"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
         user = UserModel.find_by_id(user_id)
         if not user:
-            return {"message": f"User not found."}, 404
+            return {"message": "User not found."}, 404
         return user_schema.dump(user), 200
 
     @classmethod
@@ -31,7 +36,12 @@ class AdminManageUser(Resource):
         """Change username, password or promote the user to be the admin or staff"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -46,7 +56,10 @@ class AdminManageUser(Resource):
         try:
             user.save_to_db()
         except:
-            return {"message": "An error has occurred updating the user profile."}, 500
+            return (
+                {"message": "An error has occurred updating the user profile."},
+                500,
+            )
 
         return user_schema.dump(user), 200
 
@@ -56,7 +69,12 @@ class AdminManageUser(Resource):
         """Delete the user"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -76,9 +94,21 @@ class AdminManageUserList(Resource):
         """Get the user list"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
-        return {"users": [user_schema.dump(user) for user in UserModel.find_all()]}, 200
+        return (
+            {
+                "users": [
+                    user_schema.dump(user) for user in UserModel.find_all()
+                ]
+            },
+            200,
+        )
 
     @classmethod
     @jwt_required
@@ -86,7 +116,12 @@ class AdminManageUserList(Resource):
         """Register a user"""
         claims = get_jwt_claims()
         if not claims["is_admin"]:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
         user_data = user_schema.load(request.get_json())
         if UserModel.find_by_username(user_data.username):

@@ -12,7 +12,9 @@ user_list_schema = UserSchema(many=True)
 
 
 # TODO REFACTOR ALL THE TESTS
-class AdminManageUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseAdmin):
+class AdminManageUserTests(
+    unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseAdmin
+):
     """Test admin interface"""
 
     def setUp(self) -> None:
@@ -191,10 +193,14 @@ class AdminManageUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser, BaseAdm
         )
 
         self.assertEqual(self.user.username, data["username"])
-        self.assertTrue(check_password_hash(self.user.password, data["password"]))
+        self.assertTrue(
+            check_password_hash(self.user.password, data["password"])
+        )
 
 
-class AdminManageUserListTests(unittest.TestCase, BaseApp, BaseDb, BaseAdmin, BaseUser):
+class AdminManageUserListTests(
+    unittest.TestCase, BaseApp, BaseDb, BaseAdmin, BaseUser
+):
     """Test admin interface"""
 
     def setUp(self):

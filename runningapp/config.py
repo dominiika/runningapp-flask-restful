@@ -8,7 +8,9 @@ class Config:
         from runningapp.secret_key import SECRET_KEY
     except ImportError:
         with open(
-            os.path.join(os.path.abspath(os.path.dirname(__file__)), "secret_key.py"),
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), "secret_key.py"
+            ),
             "w",
         ) as file:
             file.write(f'SECRET_KEY="{os.urandom(24)}"')

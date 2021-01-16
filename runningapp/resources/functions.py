@@ -8,7 +8,9 @@ class CaloricNeedsCalculatorFunctions:
     def calculate_daily_caloric_needs(
         self, age, height, weight, gender, trainings_per_week
     ) -> int:
-        """Calculate BMR (Basal Metabolic Rate) - the amount of calories required for a person per day"""
+        """Calculate BMR (Basal Metabolic Rate)
+        - the amount of calories
+        required for a person per day"""
         bmr = 0
         activity_factor = self._calculate_activity_factor(trainings_per_week)
         if gender == "Female":
@@ -19,7 +21,8 @@ class CaloricNeedsCalculatorFunctions:
         return int(daily_caloric_needs)
 
     def _calculate_activity_factor(self, trainings_per_week) -> int:
-        """Calculate the physical activity factor based on the amount of trainings per week"""
+        """Calculate the physical activity factor
+        based on the amount of trainings per week"""
         activity_factor_dict = {
             0: 1,
             1: 1.2,

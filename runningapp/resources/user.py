@@ -44,7 +44,12 @@ class User(Resource):
         if not user:
             return {"message": "User not found."}, 404
         if current_user_id != user_id:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
         user_profile = UserProfileModel.find_by_user_id(user_id)
         user_profile.delete_from_db()
         user.delete_from_db()
@@ -57,7 +62,14 @@ class UserList(Resource):
     @classmethod
     def get(cls):
         """Get method"""
-        return {"users": [user_schema.dump(user) for user in UserModel.find_all()]}, 200
+        return (
+            {
+                "users": [
+                    user_schema.dump(user) for user in UserModel.find_all()
+                ]
+            },
+            200,
+        )
 
 
 class UserProfile(Resource):
@@ -74,7 +86,12 @@ class UserProfile(Resource):
         current_user_id = get_jwt_identity()
 
         if userprofile_id != current_user_id:
-            return {"message": "You don't have permission to perform this action."}, 403
+            return (
+                {
+                    "message": "You don't have permission to perform this action."
+                },
+                403,
+            )
 
         user_profile_data = user_profile_schema.load(request.get_json())
         user_profile.gender = user_profile_data.gender
@@ -86,7 +103,10 @@ class UserProfile(Resource):
         try:
             user_profile.save_to_db()
         except:
-            return {"message": "An error has occurred updating the user profile."}, 500
+            return (
+                {"message": "An error has occurred updating the user profile."},
+                500,
+            )
 
         return user_profile_schema.dump(user_profile), 200
 
@@ -184,7 +204,10 @@ class ChangePassword(Resource):
             try:
                 user.save_to_db()
             except:
-                return {"message": "An error has occurred updating the user."}, 500
+                return (
+                    {"message": "An error has occurred updating the user."},
+                    500,
+                )
 
             return {"message": "Your password has been changed."}, 201
         return {"message": "Invalid credentials."}, 401

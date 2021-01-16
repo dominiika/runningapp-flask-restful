@@ -41,7 +41,9 @@ class TrainingModel(db.Model):
         ).first()  # SELECT * FROM trainings WHERE name=name LIMIT 1;
 
     @classmethod
-    def find_by_name_and_user_id(cls, name: str, user_id: int) -> "TrainingModel":
+    def find_by_name_and_user_id(
+        cls, name: str, user_id: int
+    ) -> "TrainingModel":
         """Find the training by name and user id"""
         return cls.query.filter_by(name=name, user_id=user_id).first()
 

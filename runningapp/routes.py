@@ -9,7 +9,10 @@ from runningapp.resources.user import (
     UserProfile,
     UpdateCaloricNeeds,
 )
-from runningapp.resources.calculator import BmiCalculator, CaloricNeedsCalculator
+from runningapp.resources.calculator import (
+    BmiCalculator,
+    CaloricNeedsCalculator,
+)
 from runningapp.resources.admin import AdminManageUser, AdminManageUserList
 from runningapp.resources.stats import (
     RegisteredUsersResource,

@@ -141,7 +141,7 @@ class UserListTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
     def __when_get_request_is_sent(self):
         self.response = self.client.get(
-            path=f"users/",
+            path="users/",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.access_token}",
@@ -179,7 +179,9 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__given_test_user_is_created()
         self.__given_test_user_profile_data_is_prepared()
 
-        self.__when_update_user_profile_is_sent_on_put_request(self.user_profile1.id)
+        self.__when_update_user_profile_is_sent_on_put_request(
+            self.user_profile1.id
+        )
 
         self.__then_status_code_is_200_ok()
         self.__then_user_profile_object_is_updated_correctly()
@@ -187,7 +189,9 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def __then_status_code_is_200_ok(self):
         self.assertEqual(self.response.status_code, 200)
 
-    def __when_update_user_profile_is_sent_on_put_request(self, user_profile_id):
+    def __when_update_user_profile_is_sent_on_put_request(
+        self, user_profile_id
+    ):
         self.response = self.client.put(
             path=f"userprofiles/{user_profile_id}",
             data=json.dumps(self.user_profile_data),
@@ -206,10 +210,16 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         }
 
     def __then_user_profile_object_is_updated_correctly(self):
-        self.assertEqual(self.user_profile1.gender, self.user_profile_data["gender"])
+        self.assertEqual(
+            self.user_profile1.gender, self.user_profile_data["gender"]
+        )
         self.assertEqual(self.user_profile1.age, self.user_profile_data["age"])
-        self.assertEqual(self.user_profile1.height, self.user_profile_data["height"])
-        self.assertEqual(self.user_profile1.weight, self.user_profile_data["weight"])
+        self.assertEqual(
+            self.user_profile1.height, self.user_profile_data["height"]
+        )
+        self.assertEqual(
+            self.user_profile1.weight, self.user_profile_data["weight"]
+        )
 
     def test_does_not_update_if_user_profile_not_found(self):
 
@@ -236,7 +246,9 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__given_other_user_is_created()
         self.__given_test_user_profile_data_is_prepared()
 
-        self.__when_update_user_profile_is_sent_on_put_request(self.user_profile2.id)
+        self.__when_update_user_profile_is_sent_on_put_request(
+            self.user_profile2.id
+        )
 
         self.__then_status_code_is_403_forbidden()
         self.__then_user_profile_is_not_updated()
@@ -245,10 +257,18 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.assertEqual(self.response.status_code, 403)
 
     def __then_user_profile_is_not_updated(self):
-        self.assertNotEqual(self.user_profile2.gender, self.user_profile_data["gender"])
-        self.assertNotEqual(self.user_profile2.age, self.user_profile_data["age"])
-        self.assertNotEqual(self.user_profile2.height, self.user_profile_data["height"])
-        self.assertNotEqual(self.user_profile2.weight, self.user_profile_data["weight"])
+        self.assertNotEqual(
+            self.user_profile2.gender, self.user_profile_data["gender"]
+        )
+        self.assertNotEqual(
+            self.user_profile2.age, self.user_profile_data["age"]
+        )
+        self.assertNotEqual(
+            self.user_profile2.height, self.user_profile_data["height"]
+        )
+        self.assertNotEqual(
+            self.user_profile2.weight, self.user_profile_data["weight"]
+        )
 
     def test_updates_daily_caloric_needs_correctly(self):
         """Test if correct daily caloric needs are returned"""
@@ -267,7 +287,7 @@ class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
     def __when_update_daily_needs_is_sent_on_post_request(self):
         self.response = self.client.post(
-            path=f"update-daily-needs",
+            path="update-daily-needs",
             data=json.dumps(self.data),
             headers={
                 "Content-Type": "application/json",
@@ -309,7 +329,9 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
     def __then_user_object_is_saved_in_db(self):
         user = UserModel.find_all()[-1]
-        is_password_correct = check_password_hash(user.password, self.data["password"])
+        is_password_correct = check_password_hash(
+            user.password, self.data["password"]
+        )
 
         self.assertEqual(user.username, self.data["username"])
         self.assertTrue(is_password_correct)
@@ -374,7 +396,10 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__then_correct_user_data_is_returned()
 
     def __given_login_data_is_prepared(self):
-        login_user_data = {"username": self.user1.username, "password": "testpass"}
+        login_user_data = {
+            "username": self.user1.username,
+            "password": "testpass",
+        }
         self.__prepare_data(login_user_data)
 
     def __then_status_code_is_200_ok(self):
@@ -390,7 +415,10 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__then_access_token_is_not_returned()
 
     def __given_invalid_login_data_is_prepared(self):
-        invalid_data = {"username": self.user1.username, "password": "wrongpass"}
+        invalid_data = {
+            "username": self.user1.username,
+            "password": "wrongpass",
+        }
         self.__prepare_data(invalid_data)
 
     def __then_access_token_is_not_returned(self):
