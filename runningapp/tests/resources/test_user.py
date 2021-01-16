@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 from runningapp import create_app
 from runningapp.db import db
 from runningapp.models.user import UserModel, UserProfileModel
-from runningapp.schemas.user import UserSchema, UserProfileSchema
+from runningapp.schemas.user import UserSchema
 from runningapp.tests.base_classes import BaseApp, BaseDb, BaseUser
 from runningapp.blacklist import BLACKLIST
 
@@ -14,7 +14,7 @@ user_list_schema = UserSchema(many=True)
 
 
 # TODO REFACTOR ALL THE TESTS
-class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
+class UserTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
         self.app = self._set_up_test_app(create_app)
@@ -119,7 +119,7 @@ class UserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.assertIsNotNone(user)
 
 
-class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
+class UserListTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
         self.app = self._set_up_test_app(create_app)
@@ -159,7 +159,7 @@ class UserListTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.assertEqual(self.response.json["users"], trainings_data)
 
 
-class UserProfileTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
+class UserProfileTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
         self.app = self._set_up_test_app(create_app)
@@ -294,147 +294,179 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
-        self.user = self._create_sample_user()
 
-    def test_register_status_code_created(self):
-        """Test if the status code is 201 if the user is registered successfully"""
-        data = {"username": "user2", "password": "testpass"}
-        response = self.client.post(
-            path=f"register",
+    def test_registers_user(self):
+        self.__given_register_user_data_is_prepared()
+
+        self.__when_post_request_is_sent("register", self.register_data)
+
+        self.__then_status_code_is_201_created()
+        self.__then_user_object_is_saved_in_db()
+        self.__then_correct_register_user_data_is_returned()
+
+    def __then_user_object_is_saved_in_db(self):
+        user = UserModel.find_all()[-1]
+        is_password_correct = check_password_hash(user.password, self.register_data['password'])
+
+        self.assertEqual(user.username, self.register_data['username'])
+        self.assertTrue(is_password_correct)
+
+    def __then_correct_register_user_data_is_returned(self):
+        user = UserModel.find_by_username(self.register_data['username'])
+
+        self.assertEqual(self.response.json['username'], user.username)
+        self.assertEqual(self.response.json['user'], user.id)
+        self.assertIn('access_token', self.response.json)
+
+    def __then_status_code_is_201_created(self):
+        self.assertEqual(self.response.status_code, 201)
+
+    def __when_post_request_is_sent(self, path, data):
+        self.response = self.client.post(
+            path=path,
             data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
+            headers={"Content-Type": "application/json", },
         )
 
-        self.assertEqual(response.status_code, 201)
+    def __given_register_user_data_is_prepared(self):
+        self.register_data = {"username": "user2", "password": "testpass"}
 
-    def test_register_status_code_bad_request(self):
-        """Test if the status code is 400 if the user with the given username already exists"""
-        data = {"username": self.user.username, "password": "testpass"}
-        response = self.client.post(
-            path=f"register",
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
-        )
+    def __given_test_user_is_created(self):
+        self.user1 = self._create_sample_user(username="testuser")
+        self.user_profile1 = UserProfileModel.find_by_user_id(self.user1.id)
+        self.access_token = self._get_access_token(self.client)
 
-        self.assertEqual(response.status_code, 400)
+    def test_does_not_register_user_if_already_exists(self):
+        users_number = len(UserModel.find_all())
 
-    def test_register_data_in_db(self):
-        """Test if the user is saved in the database after signing up"""
-        data = {"username": "user2", "password": "testpass"}
-        self.client.post(
-            path=f"register",
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
-        )
+        self.__given_test_user_is_created()
+        self.__given_already_existing_data_is_prepared()
 
-        user = UserModel.find_by_username(data["username"])
+        self.__when_post_request_is_sent("register", self.existing_data)
 
-        self.assertIsNotNone(user)
+        self.__then_status_code_is_400_bad_request()
+        self.__then_no_new_user_is_registered(users_number)
 
-    def test_login_status_code_ok(self):
-        """Test if the status code is 200 if the user logged in successfully"""
-        data = {"username": self.user.username, "password": "testpass"}
-        response = self.client.post(
-            path=f"login",
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
-        )
+    def __then_no_new_user_is_registered(self, previous_number):
+        new_users_number = len(UserModel.find_all())
 
-        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(new_users_number, previous_number)
 
-    def test_login_status_code_unauthorized(self):
-        """Test if the status code is 401 if the user enters invalid credentials"""
-        data = {"username": self.user.username, "password": "wrongpass"}
-        response = self.client.post(
-            path=f"login",
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
-        )
+    def __then_status_code_is_400_bad_request(self):
+        self.assertEqual(self.response.status_code, 400)
 
-        self.assertEqual(response.status_code, 401)
+    def __given_already_existing_data_is_prepared(self):
+        self.existing_data = {
+            "username": "testuser",
+            "password": "testpass"
+        }
 
-    def test_login_get_access_token(self):
-        """Test if the access token is returned after logging in"""
-        data = {"username": self.user.username, "password": "testpass"}
-        response = self.client.post(
-            path=f"login",
-            data=json.dumps(data),
-            headers={"Content-Type": "application/json",},
-        )
-
-        self.assertIn("access_token", response.json)
-
-    def test_logout_status_code_ok(self):
-        """Test if the status code is 200 if the user logged out successfully"""
-        response = self.client.post(
-            path=f"logout",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._get_access_token(self.client)}",
-            },
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-    def test_logout_token_in_blacklist(self):
-        """Test if the token is added to the blacklist after logging out"""
-        access_token = self._get_access_token(self.client)
-        self.client.post(
-            path=f"logout",
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {access_token}",
-            },
-        )
-
-        jti = get_raw_jwt()["jti"]
-
-        self.assertIn(jti, BLACKLIST)
-
-    def test_change_password_status_code_created(self):
-        """Test if the status code is 201 if the user changed password successfully"""
-        data = {"old_password": "testpass", "new_password": "brandnewpass"}
-        response = self.client.post(
-            path=f"change-password",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._get_access_token(self.client)}",
-            },
-        )
-
-        self.assertEqual(response.status_code, 201)
-
-    def test_change_password_status_code_unauthorized(self):
-        """Test if the status code is 401 if the user enters an invalid old password"""
-        data = {"old_password": "wrongpass", "new_password": "brandnewpass"}
-        response = self.client.post(
-            path=f"change-password",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._get_access_token(self.client)}",
-            },
-        )
-
-        self.assertEqual(response.status_code, 401)
-
-    def test_change_password_updates_data_in_db(self):
-        """Check if the new password is saved in the database after changing it"""
-        data = {"old_password": "testpass", "new_password": "brandnewpass"}
-        self.client.post(
-            path=f"change-password",
-            data=json.dumps(data),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._get_access_token(self.client)}",
-            },
-        )
-        is_password_changed = check_password_hash(
-            self.user.password, data["new_password"]
-        )
-
-        self.assertTrue(is_password_changed)
+    #
+    #
+    # def test_login_status_code_ok(self):
+    #     """Test if the status code is 200 if the user logged in successfully"""
+    #     data = {"username": self.user.username, "password": "testpass"}
+    #     response = self.client.post(
+    #         path=f"login",
+    #         data=json.dumps(data),
+    #         headers={"Content-Type": "application/json",},
+    #     )
+    #
+    #     self.assertEqual(response.status_code, 200)
+    #
+    # def test_login_status_code_unauthorized(self):
+    #     """Test if the status code is 401 if the user enters invalid credentials"""
+    #     data = {"username": self.user.username, "password": "wrongpass"}
+    #     response = self.client.post(
+    #         path=f"login",
+    #         data=json.dumps(data),
+    #         headers={"Content-Type": "application/json",},
+    #     )
+    #
+    #     self.assertEqual(response.status_code, 401)
+    #
+    # def test_login_get_access_token(self):
+    #     """Test if the access token is returned after logging in"""
+    #     data = {"username": self.user.username, "password": "testpass"}
+    #     response = self.client.post(
+    #         path=f"login",
+    #         data=json.dumps(data),
+    #         headers={"Content-Type": "application/json",},
+    #     )
+    #
+    #     self.assertIn("access_token", response.json)
+    #
+    # def test_logout_status_code_ok(self):
+    #     """Test if the status code is 200 if the user logged out successfully"""
+    #     response = self.client.post(
+    #         path=f"logout",
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
+    #         },
+    #     )
+    #
+    #     self.assertEqual(response.status_code, 200)
+    #
+    # def test_logout_token_in_blacklist(self):
+    #     """Test if the token is added to the blacklist after logging out"""
+    #     access_token = self._get_access_token(self.client)
+    #     self.client.post(
+    #         path=f"logout",
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {access_token}",
+    #         },
+    #     )
+    #
+    #     jti = get_raw_jwt()["jti"]
+    #
+    #     self.assertIn(jti, BLACKLIST)
+    #
+    # def test_change_password_status_code_created(self):
+    #     """Test if the status code is 201 if the user changed password successfully"""
+    #     data = {"old_password": "testpass", "new_password": "brandnewpass"}
+    #     response = self.client.post(
+    #         path=f"change-password",
+    #         data=json.dumps(data),
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
+    #         },
+    #     )
+    #
+    #     self.assertEqual(response.status_code, 201)
+    #
+    # def test_change_password_status_code_unauthorized(self):
+    #     """Test if the status code is 401 if the user enters an invalid old password"""
+    #     data = {"old_password": "wrongpass", "new_password": "brandnewpass"}
+    #     response = self.client.post(
+    #         path=f"change-password",
+    #         data=json.dumps(data),
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
+    #         },
+    #     )
+    #
+    #     self.assertEqual(response.status_code, 401)
+    #
+    # def test_change_password_updates_data_in_db(self):
+    #     """Check if the new password is saved in the database after changing it"""
+    #     data = {"old_password": "testpass", "new_password": "brandnewpass"}
+    #     self.client.post(
+    #         path=f"change-password",
+    #         data=json.dumps(data),
+    #         headers={
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
+    #         },
+    #     )
+    #     is_password_changed = check_password_hash(
+    #         self.user.password, data["new_password"]
+    #     )
+    #
+    #     self.assertTrue(is_password_changed)
 
 
 if __name__ == "__main__":
