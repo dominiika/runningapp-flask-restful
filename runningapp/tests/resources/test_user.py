@@ -13,7 +13,6 @@ from runningapp.blacklist import BLACKLIST
 user_list_schema = UserSchema(many=True)
 
 
-# TODO REFACTOR ALL THE TESTS
 class UserTest(unittest.TestCase, BaseApp, BaseDb, BaseUser):
     def setUp(self):
         """Set up a test app, test client and test database"""
@@ -418,77 +417,43 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
         self.assertIn(jti, BLACKLIST)
 
-    # def test_logout_status_code_ok(self):
-    #     """Test if the status code is 200 if the user logged out successfully"""
-    #     response = self.client.post(
-    #         path=f"logout",
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
-    #         },
-    #     )
-    #
-    #     self.assertEqual(response.status_code, 200)
-    #
-    # def test_logout_token_in_blacklist(self):
-    #     """Test if the token is added to the blacklist after logging out"""
-    #     access_token = self._get_access_token(self.client)
-    #     self.client.post(
-    #         path=f"logout",
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {access_token}",
-    #         },
-    #     )
-    #
-    #     jti = get_raw_jwt()["jti"]
-    #
-    #     self.assertIn(jti, BLACKLIST)
-    #
-    # def test_change_password_status_code_created(self):
-    #     """Test if the status code is 201 if the user changed password successfully"""
-    #     data = {"old_password": "testpass", "new_password": "brandnewpass"}
-    #     response = self.client.post(
-    #         path=f"change-password",
-    #         data=json.dumps(data),
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
-    #         },
-    #     )
-    #
-    #     self.assertEqual(response.status_code, 201)
-    #
-    # def test_change_password_status_code_unauthorized(self):
-    #     """Test if the status code is 401 if the user enters an invalid old password"""
-    #     data = {"old_password": "wrongpass", "new_password": "brandnewpass"}
-    #     response = self.client.post(
-    #         path=f"change-password",
-    #         data=json.dumps(data),
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
-    #         },
-    #     )
-    #
-    #     self.assertEqual(response.status_code, 401)
-    #
-    # def test_change_password_updates_data_in_db(self):
-    #     """Check if the new password is saved in the database after changing it"""
-    #     data = {"old_password": "testpass", "new_password": "brandnewpass"}
-    #     self.client.post(
-    #         path=f"change-password",
-    #         data=json.dumps(data),
-    #         headers={
-    #             "Content-Type": "application/json",
-    #             "Authorization": f"Bearer {self._get_access_token(self.client)}",
-    #         },
-    #     )
-    #     is_password_changed = check_password_hash(
-    #         self.user.password, data["new_password"]
-    #     )
-    #
-    #     self.assertTrue(is_password_changed)
+    def test_changes_user_password(self):
+        self.__given_test_user_is_created()
+        self.__given_change_password_data_is_prepared()
+
+        self.__when_post_request_is_sent("change-password", self.data, self.access_token)
+
+        self.__then_status_code_is_201_created()
+        self.__then_password_is_changed_in_db()
+
+    def __then_password_is_changed_in_db(self):
+        is_password_changed = check_password_hash(
+            self.user1.password, self.data["new_password"]
+        )
+        self.assertTrue(is_password_changed)
+
+    def __given_change_password_data_is_prepared(self):
+        data = {"old_password": "testpass", "new_password": "brandnewpass"}
+        self.__prepare_data(data)
+
+    def test_does_not_change_password_if_invalid_data(self):
+        self.__given_test_user_is_created()
+        self.__given_invalid_change_password_data_is_prepared()
+
+        self.__when_post_request_is_sent("change-password", self.data, self.access_token)
+
+        self.__then_status_code_is_401_unauthorized()
+        self.__then_password_is_not_changed_in_db()
+
+    def __then_password_is_not_changed_in_db(self):
+        is_password_changed = check_password_hash(
+            self.user1.password, self.data["new_password"]
+        )
+        self.assertFalse(is_password_changed)
+
+    def __given_invalid_change_password_data_is_prepared(self):
+        data = {"old_password": "wrongpass", "new_password": "brandnewpass"}
+        self.__prepare_data(data)
 
 
 if __name__ == "__main__":
