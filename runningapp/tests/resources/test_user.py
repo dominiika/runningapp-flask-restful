@@ -309,17 +309,17 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
 
     def __then_user_object_is_saved_in_db(self):
         user = UserModel.find_all()[-1]
-        is_password_correct = check_password_hash(user.password, self.data['password'])
+        is_password_correct = check_password_hash(user.password, self.data["password"])
 
-        self.assertEqual(user.username, self.data['username'])
+        self.assertEqual(user.username, self.data["username"])
         self.assertTrue(is_password_correct)
 
     def __then_correct_user_data_is_returned(self):
-        user = UserModel.find_by_username(self.data['username'])
+        user = UserModel.find_by_username(self.data["username"])
 
-        self.assertEqual(self.response.json['username'], user.username)
-        self.assertEqual(self.response.json['user'], user.id)
-        self.assertIn('access_token', self.response.json)
+        self.assertEqual(self.response.json["username"], user.username)
+        self.assertEqual(self.response.json["user"], user.id)
+        self.assertIn("access_token", self.response.json)
 
     def __then_status_code_is_201_created(self):
         self.assertEqual(self.response.status_code, 201)
@@ -331,7 +331,7 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {access_token}",
-            }
+            },
         )
 
     def __given_test_user_is_created(self):
@@ -350,10 +350,7 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__then_no_new_user_is_registered(users_number)
 
     def __given_existing_data_is_prepared(self):
-        existing_user_data = {
-            "username": "testuser",
-            "password": "testpass"
-        }
+        existing_user_data = {"username": "testuser", "password": "testpass"}
         self.__prepare_data(existing_user_data)
 
     def __then_no_new_user_is_registered(self, previous_number):
@@ -421,7 +418,9 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__given_test_user_is_created()
         self.__given_change_password_data_is_prepared()
 
-        self.__when_post_request_is_sent("change-password", self.data, self.access_token)
+        self.__when_post_request_is_sent(
+            "change-password", self.data, self.access_token
+        )
 
         self.__then_status_code_is_201_created()
         self.__then_password_is_changed_in_db()
@@ -440,7 +439,9 @@ class OtherUserTests(unittest.TestCase, BaseApp, BaseDb, BaseUser):
         self.__given_test_user_is_created()
         self.__given_invalid_change_password_data_is_prepared()
 
-        self.__when_post_request_is_sent("change-password", self.data, self.access_token)
+        self.__when_post_request_is_sent(
+            "change-password", self.data, self.access_token
+        )
 
         self.__then_status_code_is_401_unauthorized()
         self.__then_password_is_not_changed_in_db()
