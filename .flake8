@@ -1,0 +1,11 @@
+[flake8]
+exclude =
+  venv
+  env
+  .gitignore
+  .travis.yml
+  Dockerfile
+  .dockerignore
+  README.md
+  requirements.txt
+  .pytest_cache

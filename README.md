@@ -84,3 +84,13 @@ The app contains unit tests. <br/> To run them, use the following command:
 ```
 python -m unittest discover
 ``` 
+
+To test the linting, run:
+```
+flake8
+```
+
+To lint all the files, run:
+```
+black .
+```
