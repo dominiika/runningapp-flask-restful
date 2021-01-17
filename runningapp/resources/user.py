@@ -213,7 +213,6 @@ class ChangePassword(Resource):
         return {"message": "Invalid credentials."}, 401
 
 
-# TODO write tests
 class UpdateCaloricNeeds(Resource):
     """Save a particular value as daily caloric needs"""
 
