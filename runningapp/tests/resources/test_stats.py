@@ -12,15 +12,11 @@ from runningapp.tests.base_classes import (
 
 
 class StatsTests(unittest.TestCase, BaseApp, BaseUser, BaseDb, BaseTraining):
-    """Test stats"""
-
     def setUp(self) -> None:
         """Create a test app and a test client"""
         self.app = self._set_up_test_app(create_app)
         self.client = self._set_up_client(self.app)
         self._set_up_test_db(db)
-        # self.user1 = self._create_sample_user(username="user1")
-        # self.user2 = self._create_sample_user(username="user2")
 
     def test_returns_registered_users(self):
         self.__given_users_are_created()
